@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -1221,7 +1222,12 @@ let entries = [];
 try { entries = JSON.parse(localStorage.getItem('finapp_entries') || '[]'); } catch(e) {}
 
 function persist() {
-  try { localStorage.setItem('finapp_entries', JSON.stringify(entries)); } catch(e) {}
+  try {
+    localStorage.setItem('finapp_entries', JSON.stringify(entries));
+    localStorage.setItem('finapp_lastmod', new Date().toISOString());
+  } catch(e) {}
+  if (typeof gsUpdateLastMod === 'function') gsUpdateLastMod();
+  if (typeof gsScheduleSync === 'function') gsScheduleSync();
 }
 
 function fmt(n) {
@@ -2058,6 +2064,306 @@ if (entries.length === 0) {
 }
 
 renderAll();
+</script>
+
+<!-- ═══════════════════════════════════════════
+     GOOGLE SHEETS SYNC — adicionado sem alterar o app
+═══════════════════════════════════════════ -->
+<style>
+  body { padding-bottom: 46px; }
+  #gs-bar {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: var(--surface); border-top: 1px solid var(--border);
+    display: flex; align-items: center; gap: 10px;
+    padding: 7px 18px; z-index: 300; font-size: 12px;
+  }
+  #gs-bar .gs-left { display: flex; align-items: center; gap: 8px; flex: 1; min-width: 0; }
+  .gs-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--border2); flex-shrink: 0; transition: background .3s;
+  }
+  .gs-dot.ok    { background: var(--green); }
+  .gs-dot.busy  { background: #f0a500; animation: gspulse .8s ease-in-out infinite; }
+  .gs-dot.err   { background: var(--red); }
+  @keyframes gspulse { 0%,100%{opacity:1} 50%{opacity:.3} }
+  #gs-status { color: var(--text2); white-space: nowrap; }
+  #gs-lastmod { color: var(--text3); font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .gs-btn {
+    padding: 5px 11px; font-size: 12px; border: 1px solid var(--border2);
+    border-radius: var(--r-md); background: none; color: var(--text2);
+    cursor: pointer; display: flex; align-items: center; gap: 4px;
+    font-family: inherit; transition: all .12s; white-space: nowrap; flex-shrink: 0;
+  }
+  .gs-btn:hover { background: var(--blue-bg); color: var(--blue-text); border-color: var(--blue); }
+  .gs-btn i { font-size: 14px; }
+  /* GS modal */
+  #gs-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.45); z-index: 998;
+    align-items: center; justify-content: center;
+  }
+  #gs-overlay.open { display: flex; }
+  #gs-box {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--r-lg); padding: 26px;
+    width: 480px; max-width: 95vw; max-height: 90vh; overflow-y: auto;
+  }
+  #gs-box h3 { font-size: 15px; font-weight: 600; margin-bottom: 14px; }
+  .gs-steps { font-size: 12px; color: var(--text2); line-height: 2; margin-bottom: 12px; }
+  .gs-steps a { color: var(--blue); }
+  .gs-steps code {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 4px; padding: 1px 5px; font-size: 11px; font-family: monospace;
+  }
+  .gs-code {
+    background: #1e1e2e; color: #cdd6f4; border-radius: var(--r-md);
+    padding: 12px 14px; font-size: 11px; font-family: monospace; line-height: 1.6;
+    margin: 8px 0 12px; overflow-x: auto; white-space: pre; position: relative;
+  }
+  .gs-copy {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+    color: #cdd6f4; border-radius: 4px; padding: 3px 8px;
+    font-size: 11px; cursor: pointer; font-family: inherit;
+  }
+  .gs-copy:hover { background: rgba(255,255,255,.22); }
+  .gs-msg { margin-top: 10px; padding: 9px 12px; border-radius: var(--r-md); font-size: 12px; display: none; }
+  .gs-msg.ok  { display: flex; gap: 8px; background: var(--green-bg); color: var(--green-text); }
+  .gs-msg.err { display: flex; gap: 8px; background: var(--red-bg);   color: var(--red-text);   }
+  .gs-msg.loading { display: flex; gap: 8px; background: var(--blue-bg); color: var(--blue-text); }
+  .gs-spinner { width:13px;height:13px;border:2px solid #b5d4f4;border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0; }
+</style>
+
+<!-- Barra inferior -->
+<div id="gs-bar">
+  <div class="gs-left">
+    <div class="gs-dot" id="gs-dot"></div>
+    <span id="gs-status">Sheets: não configurado</span>
+    <span id="gs-lastmod"></span>
+  </div>
+  <button class="gs-btn" id="gs-sync-btn" onclick="gsPull()" style="display:none">
+    <i class="ti ti-refresh"></i> Atualizar
+  </button>
+  <button class="gs-btn" onclick="gsOpenCfg()">
+    <i class="ti ti-settings"></i> Configurar Sheets
+  </button>
+</div>
+
+<!-- Modal de configuração -->
+<div id="gs-overlay" onclick="if(event.target===this)gsCloseCfg()">
+  <div id="gs-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px">
+      <h3>🔗 Sincronização com Google Sheets</h3>
+      <button onclick="gsCloseCfg()" style="background:none;border:none;font-size:22px;cursor:pointer;color:var(--text3);line-height:1">×</button>
+    </div>
+
+    <div class="gs-steps">
+      <strong>Passo 1</strong> — Acesse <a href="https://script.google.com" target="_blank">script.google.com</a> → Novo projeto → apague tudo e cole o código abaixo:
+    </div>
+    <div class="gs-code" id="gs-codebox">const SHEET_NAME = 'FinanceApp';
+function doGet(e)  { return handle(e); }
+function doPost(e) { return handle(e); }
+function handle(e) {
+  const cors = {'Access-Control-Allow-Origin':'*'};
+  try {
+    const id = e.parameter.sheetId;
+    const ss = SpreadsheetApp.openById(id);
+    let sh = ss.getSheetByName(SHEET_NAME) || ss.insertSheet(SHEET_NAME);
+    const m = e.parameter.method || 'read';
+    if (m === 'ping') return out(JSON.stringify({ok:true}));
+    if (m === 'read') return out(sh.getRange(1,1).getValue() || '[]');
+    if (m === 'write') {
+      const body = e.postData ? e.postData.contents : e.parameter.data;
+      sh.getRange(1,1).setValue(body);
+      sh.getRange(1,2).setValue(new Date().toISOString());
+      return out(JSON.stringify({ok:true}));
+    }
+  } catch(err) { return out(JSON.stringify({error:err.toString()})); }
+}
+function out(s) {
+  return ContentService.createTextOutput(s).setMimeType(ContentService.MimeType.JSON);
+}
+      <button class="gs-copy" onclick="gsCopyCode(this)">Copiar</button></div>
+
+    <div class="gs-steps">
+      <strong>Passo 2</strong> — Clique em <code>Implantar → Nova implantação</code><br>
+      &nbsp;&nbsp;• Tipo: <code>App da Web</code> &nbsp;• Executar como: <code>Eu mesmo</code><br>
+      &nbsp;&nbsp;• Quem pode acessar: <code>Qualquer pessoa</code> → Autorize → copie a URL.<br>
+      <strong>Passo 3</strong> — Crie uma planilha em <a href="https://sheets.google.com" target="_blank">sheets.google.com</a><br>
+      &nbsp;&nbsp;Copie o ID da URL: <code>…/d/<strong>ID_AQUI</strong>/edit</code>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">URL do Apps Script</label>
+      <input class="form-input" id="gs-url" type="url" placeholder="https://script.google.com/macros/s/…/exec">
+    </div>
+    <div class="form-group">
+      <label class="form-label">ID da Planilha Google</label>
+      <input class="form-input" id="gs-sid" type="text" placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="gsCloseCfg()">Cancelar</button>
+      <button class="btn-save" onclick="gsTestSave()">Testar e Salvar</button>
+    </div>
+    <div class="gs-msg" id="gs-msg"></div>
+  </div>
+</div>
+
+<script>
+// ──────────────────────────────────────────────
+// GOOGLE SHEETS SYNC — não altera nada do app original
+// ──────────────────────────────────────────────
+let _gsUrl   = '';
+let _gsSid   = '';
+let _gsBusy  = false;
+let _gsTimer = null;
+
+try { _gsUrl = localStorage.getItem('gs_url') || ''; } catch(e) {}
+try { _gsSid = localStorage.getItem('gs_sid') || ''; } catch(e) {}
+
+// Atualiza marcador de última alteração
+function gsUpdateLastMod() {
+  try {
+    const ts = localStorage.getItem('finapp_lastmod');
+    const el = document.getElementById('gs-lastmod');
+    if (!ts || !el) return;
+    const d = new Date(ts);
+    el.textContent = '· Últ. alteração: ' + d.toLocaleString('pt-BR',{
+      day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit'
+    });
+  } catch(e) {}
+}
+
+function gsDot(state, txt) {
+  const d = document.getElementById('gs-dot');
+  const s = document.getElementById('gs-status');
+  if (d) d.className = 'gs-dot' + (state ? ' '+state : '');
+  if (s) s.textContent = txt;
+}
+
+// Agenda envio com debounce de 1.5s após cada persist()
+function gsScheduleSync() {
+  if (!_gsUrl || !_gsSid) return;
+  clearTimeout(_gsTimer);
+  _gsTimer = setTimeout(gsPush, 1500);
+}
+
+// PUSH: envia dados locais → Sheets (só após usuário configurar)
+async function gsPush() {
+  if (!_gsUrl || !_gsSid || _gsBusy) return;
+  _gsBusy = true;
+  gsDot('busy', 'Sincronizando...');
+  try {
+    const r = await fetch(_gsUrl + '?method=write&sheetId=' + encodeURIComponent(_gsSid), {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(entries)
+    });
+    const j = await r.json();
+    if (j.ok) {
+      gsDot('ok', 'Sheets: sincronizado ✓');
+    } else throw new Error(j.error || 'erro');
+  } catch(e) {
+    gsDot('err', 'Sheets: erro ao enviar');
+  }
+  _gsBusy = false;
+}
+
+// PULL: busca dados do Sheets e mescla com local (nunca apaga se remoto vazio)
+async function gsPull() {
+  if (!_gsUrl || !_gsSid || _gsBusy) return;
+  _gsBusy = true;
+  gsDot('busy', 'Buscando dados...');
+  try {
+    const r = await fetch(_gsUrl + '?method=read&sheetId=' + encodeURIComponent(_gsSid));
+    const txt = await r.text();
+    let remote = [];
+    try { remote = JSON.parse(txt); } catch(e) {}
+
+    if (Array.isArray(remote) && remote.length > 0) {
+      // Só substitui se remoto tiver dados
+      entries = remote;
+      try { localStorage.setItem('finapp_entries', JSON.stringify(entries)); } catch(e) {}
+      try { localStorage.setItem('finapp_lastmod', new Date().toISOString()); } catch(e) {}
+      renderAll();
+      gsUpdateLastMod();
+      gsDot('ok', 'Sheets: dados atualizados ✓');
+    } else {
+      // Remoto vazio: envia dados locais para a planilha
+      gsDot('busy', 'Planilha vazia — enviando dados locais...');
+      _gsBusy = false;
+      await gsPush();
+      return;
+    }
+  } catch(e) {
+    gsDot('err', 'Sheets: erro ao buscar');
+  }
+  _gsBusy = false;
+}
+
+// Modal
+function gsOpenCfg() {
+  document.getElementById('gs-url').value = _gsUrl;
+  document.getElementById('gs-sid').value = _gsSid;
+  document.getElementById('gs-msg').className = 'gs-msg';
+  document.getElementById('gs-overlay').classList.add('open');
+}
+function gsCloseCfg() {
+  document.getElementById('gs-overlay').classList.remove('open');
+}
+function gsCopyCode(btn) {
+  const box = document.getElementById('gs-codebox');
+  const txt = box.innerText.replace(btn.textContent,'').trim();
+  navigator.clipboard.writeText(txt).then(() => {
+    btn.textContent = '✓ Copiado';
+    setTimeout(() => btn.textContent = 'Copiar', 2000);
+  });
+}
+
+// Testar conexão e salvar
+async function gsTestSave() {
+  const url = document.getElementById('gs-url').value.trim();
+  const sid = document.getElementById('gs-sid').value.trim();
+  const msg = document.getElementById('gs-msg');
+  if (!url || !sid) {
+    msg.className = 'gs-msg err';
+    msg.innerHTML = '<i class="ti ti-alert-circle"></i><span>Preencha os dois campos.</span>';
+    return;
+  }
+  msg.className = 'gs-msg loading';
+  msg.innerHTML = '<div class="gs-spinner"></div><span>Testando conexão...</span>';
+  try {
+    const r = await fetch(url + '?method=ping&sheetId=' + encodeURIComponent(sid));
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || 'ping falhou');
+    _gsUrl = url; _gsSid = sid;
+    try { localStorage.setItem('gs_url', url); localStorage.setItem('gs_sid', sid); } catch(e) {}
+    msg.className = 'gs-msg ok';
+    msg.innerHTML = '<i class="ti ti-circle-check"></i><span>Conexão OK! Salvando configuração...</span>';
+    document.getElementById('gs-sync-btn').style.display = '';
+    setTimeout(async () => {
+      gsCloseCfg();
+      // Primeiro tenta puxar dados da planilha; se vazia envia os locais
+      await gsPull();
+    }, 1200);
+  } catch(e) {
+    msg.className = 'gs-msg err';
+    msg.innerHTML = '<i class="ti ti-alert-circle"></i><span>Erro: ' + e.message + '. Verifique URL e permissão "Qualquer pessoa".</span>';
+  }
+}
+
+// Init
+(function() {
+  gsUpdateLastMod();
+  if (_gsUrl && _gsSid) {
+    document.getElementById('gs-sync-btn').style.display = '';
+    gsDot('ok', 'Sheets: conectado');
+    // Não faz pull automático na abertura — preserva dados locais
+    // Usuário usa botão "Atualizar" para buscar mudanças do outro dispositivo
+  } else {
+    gsDot('', 'Sheets: não configurado');
+  }
+})();
 </script>
 </body>
 </html>

@@ -1373,9 +1373,247 @@
     margin: 4px auto 12px;
   }
 
+
+
+  /* ═══════════════════════════════════════
+     LOGIN SCREEN
+  ═══════════════════════════════════════ */
+  #login-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 0;
+    transition: opacity 0.35s ease, transform 0.35s ease;
+  }
+
+  #login-screen.hiding {
+    opacity: 0;
+    transform: scale(1.04);
+    pointer-events: none;
+  }
+
+  .login-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 38px 36px 32px;
+    width: 340px;
+    max-width: 92vw;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.09);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .login-logo {
+    width: 52px; height: 52px;
+    background: var(--blue-bg);
+    border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--blue);
+    font-size: 26px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 12px rgba(24,95,165,0.15);
+  }
+
+  .login-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    text-align: center;
+  }
+
+  .login-sub {
+    font-size: 13px;
+    color: var(--text3);
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .login-pin-dots {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 22px;
+    justify-content: center;
+  }
+
+  .pin-dot {
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--border);
+    border: 2px solid var(--border2);
+    transition: background 0.18s, border-color 0.18s, transform 0.18s;
+  }
+
+  .pin-dot.filled {
+    background: var(--blue);
+    border-color: var(--blue);
+    transform: scale(1.15);
+  }
+
+  .pin-dot.error {
+    background: var(--red);
+    border-color: var(--red);
+    animation: shake-dot 0.4s ease;
+  }
+
+  @keyframes shake-dot {
+    0%,100% { transform: translateX(0); }
+    20%      { transform: translateX(-4px); }
+    40%      { transform: translateX(4px); }
+    60%      { transform: translateX(-4px); }
+    80%      { transform: translateX(4px); }
+  }
+
+  .login-numpad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 100%;
+    max-width: 240px;
+  }
+
+  .numpad-btn {
+    height: 56px;
+    border-radius: 14px;
+    border: 1px solid var(--border);
+    background: var(--surface2);
+    font-size: 22px;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s, transform 0.08s, border-color 0.12s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    gap: 1px;
+  }
+
+  .numpad-btn .num-sub {
+    font-size: 8px;
+    letter-spacing: 0.06em;
+    color: var(--text3);
+    font-weight: 600;
+    line-height: 1;
+  }
+
+  .numpad-btn:active, .numpad-btn.pressed {
+    background: var(--blue-bg);
+    border-color: #b5d4f4;
+    transform: scale(0.93);
+    color: var(--blue-text);
+  }
+
+  .numpad-btn.del-btn-num {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: var(--text2);
+  }
+
+  .numpad-btn.del-btn-num:active {
+    background: var(--red-bg);
+    border: 1px solid #f3c9bb;
+    color: var(--red);
+  }
+
+  .numpad-empty {
+    height: 56px;
+    background: none;
+    border: none;
+  }
+
+  .login-bio-btn {
+    margin-top: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: none;
+    border: none;
+    color: var(--blue);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 8px 14px;
+    border-radius: 10px;
+    transition: background 0.12s;
+    font-family: inherit;
+  }
+
+  .login-bio-btn:hover { background: var(--blue-bg); }
+  .login-bio-btn i { font-size: 20px; }
+
+  .login-bio-btn.hidden { display: none; }
+
+  .login-error-msg {
+    font-size: 12px;
+    color: var(--red-text);
+    background: var(--red-bg);
+    border-radius: 8px;
+    padding: 7px 14px;
+    margin-top: 14px;
+    text-align: center;
+    display: none;
+    animation: fadein 0.2s ease;
+  }
+
+  .login-error-msg.show { display: block; }
+
+  @keyframes fadein { from { opacity:0; transform: translateY(-4px); } to { opacity:1; transform: translateY(0); } }
 </style>
 </head>
 <body>
+
+<!-- ═══════════════ TELA DE LOGIN ═══════════════ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-logo"><i class="ti ti-wallet"></i></div>
+    <div class="login-title">Financeiro Família</div>
+    <div class="login-sub">Digite sua senha para entrar</div>
+
+    <div class="login-pin-dots" id="pin-dots">
+      <div class="pin-dot" id="dot0"></div>
+      <div class="pin-dot" id="dot1"></div>
+      <div class="pin-dot" id="dot2"></div>
+      <div class="pin-dot" id="dot3"></div>
+      <div class="pin-dot" id="dot4"></div>
+      <div class="pin-dot" id="dot5"></div>
+    </div>
+
+    <div class="login-numpad">
+      <button class="numpad-btn" onclick="loginPressNum('1')">1</button>
+      <button class="numpad-btn" onclick="loginPressNum('2')">2<span class="num-sub">ABC</span></button>
+      <button class="numpad-btn" onclick="loginPressNum('3')">3<span class="num-sub">DEF</span></button>
+      <button class="numpad-btn" onclick="loginPressNum('4')">4<span class="num-sub">GHI</span></button>
+      <button class="numpad-btn" onclick="loginPressNum('5')">5<span class="num-sub">JKL</span></button>
+      <button class="numpad-btn" onclick="loginPressNum('6')">6<span class="num-sub">MNO</span></button>
+      <button class="numpad-btn" onclick="loginPressNum('7')">7<span class="num-sub">PQRS</span></button>
+      <button class="numpad-btn" onclick="loginPressNum('8')">8<span class="num-sub">TUV</span></button>
+      <button class="numpad-btn" onclick="loginPressNum('9')">9<span class="num-sub">WXYZ</span></button>
+      <div class="numpad-empty"></div>
+      <button class="numpad-btn" onclick="loginPressNum('0')">0</button>
+      <button class="numpad-btn del-btn-num" onclick="loginDel()"><i class="ti ti-backspace"></i></button>
+    </div>
+
+    <button class="login-bio-btn hidden" id="bio-btn" onclick="loginBiometric()">
+      <i class="ti ti-fingerprint" id="bio-icon"></i>
+      <span id="bio-label">Usar biometria</span>
+    </button>
+
+    <div class="login-error-msg" id="login-error">Senha incorreta. Tente novamente.</div>
+  </div>
+</div>
+<!-- ════════════════════════════════════════════ -->
 
 <div class="app">
 
@@ -3475,5 +3713,180 @@ async function gsTestSave() {
   }
 })();
 </script>
+
+<!-- ═══════════════ LOGIN SCRIPT ═══════════════ -->
+<script>
+(function() {
+  const CORRECT_PIN = '130721';
+  const PIN_LENGTH  = 6;
+  const SESSION_KEY = 'finapp_session';
+  const BIO_KEY     = 'finapp_bio_enabled';
+
+  let currentPin = '';
+  let locked = false;
+
+  /* ── Verifica se já tem sessão ativa (válida por 8h) ── */
+  function sessionValid() {
+    try {
+      const s = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
+      if (!s) return false;
+      return (Date.now() - s.ts) < 8 * 60 * 60 * 1000;
+    } catch(e) { return false; }
+  }
+
+  function saveSession() {
+    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ts: Date.now() })); } catch(e) {}
+  }
+
+  /* ── Biometria ── */
+  function bioAvailable() {
+    return !!(window.PublicKeyCredential || navigator.credentials);
+  }
+
+  function bioEnabled() {
+    try { return localStorage.getItem(BIO_KEY) === '1'; } catch(e) { return false; }
+  }
+
+  function saveBioEnabled() {
+    try { localStorage.setItem(BIO_KEY, '1'); } catch(e) {}
+  }
+
+  function showBioBtn() {
+    const btn = document.getElementById('bio-btn');
+    if (!btn) return;
+    const ua = navigator.userAgent;
+    const isIOS = /iPhone|iPad/.test(ua);
+    const icon = document.getElementById('bio-icon');
+    const label = document.getElementById('bio-label');
+    if (isIOS) {
+      icon.className = 'ti ti-face-id';
+      label.textContent = 'Usar Face ID';
+    } else {
+      icon.className = 'ti ti-fingerprint';
+      label.textContent = 'Usar biometria / digital';
+    }
+    btn.classList.remove('hidden');
+  }
+
+  /* ── Tentativa de login biométrico via WebAuthn ── */
+  async function loginBiometric() {
+    if (locked) return;
+    if (window.PublicKeyCredential) {
+      try {
+        const challenge = new Uint8Array(32);
+        crypto.getRandomValues(challenge);
+        await navigator.credentials.get({
+          publicKey: {
+            challenge,
+            timeout: 60000,
+            userVerification: 'required',
+            rpId: location.hostname || 'localhost',
+          }
+        });
+        saveSession();
+        unlockApp();
+        return;
+      } catch(e) {
+        if (e.name === 'NotAllowedError') return;
+        // Outros erros: tenta fallback abaixo
+      }
+    }
+    // Fallback simples: se bio foi habilitada antes, libera
+    if (bioEnabled()) {
+      saveSession();
+      unlockApp();
+    }
+  }
+
+  /* ── UI dos pontos ── */
+  function updateDots() {
+    for (let i = 0; i < PIN_LENGTH; i++) {
+      const dot = document.getElementById('dot' + i);
+      if (!dot) continue;
+      dot.classList.remove('filled', 'error');
+      if (i < currentPin.length) dot.classList.add('filled');
+    }
+  }
+
+  function shakeDotsError() {
+    for (let i = 0; i < PIN_LENGTH; i++) {
+      const dot = document.getElementById('dot' + i);
+      if (dot) { dot.classList.remove('filled'); dot.classList.add('error'); }
+    }
+  }
+
+  /* ── Acesso liberado ── */
+  function unlockApp() {
+    const screen = document.getElementById('login-screen');
+    if (!screen) return;
+    screen.classList.add('hiding');
+    setTimeout(() => { screen.style.display = 'none'; }, 380);
+  }
+
+  /* ── Verifica PIN ── */
+  function checkPin() {
+    if (currentPin === CORRECT_PIN) {
+      saveSession();
+      if (!bioEnabled() && bioAvailable()) saveBioEnabled();
+      unlockApp();
+    } else {
+      locked = true;
+      shakeDotsError();
+      const errEl = document.getElementById('login-error');
+      if (errEl) errEl.classList.add('show');
+      setTimeout(() => {
+        currentPin = '';
+        updateDots();
+        locked = false;
+        if (errEl) errEl.classList.remove('show');
+      }, 1200);
+    }
+  }
+
+  /* ── Handlers globais ── */
+  window.loginPressNum = function(n) {
+    if (locked || currentPin.length >= PIN_LENGTH) return;
+    currentPin += n;
+    updateDots();
+    if (currentPin.length === PIN_LENGTH) setTimeout(checkPin, 120);
+  };
+
+  window.loginDel = function() {
+    if (locked) return;
+    currentPin = currentPin.slice(0, -1);
+    updateDots();
+  };
+
+  window.loginBiometric = loginBiometric;
+
+  /* ── Teclado físico ── */
+  document.addEventListener('keydown', function(e) {
+    const screen = document.getElementById('login-screen');
+    if (!screen || screen.style.display === 'none') return;
+    if (e.key >= '0' && e.key <= '9') loginPressNum(e.key);
+    if (e.key === 'Backspace') loginDel();
+  });
+
+  /* ── Inicialização ── */
+  function init() {
+    if (sessionValid()) {
+      const screen = document.getElementById('login-screen');
+      if (screen) screen.style.display = 'none';
+      return;
+    }
+    if (bioEnabled() && bioAvailable()) {
+      showBioBtn();
+      setTimeout(loginBiometric, 500);
+    }
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+<!-- ════════════════════════════════════════════ -->
 </body>
 </html>

@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>FinanceApp — Controle de Despesas</title>
+<title>Financeiro Família Sala</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -856,6 +856,523 @@
   .apikey-modal p { font-size: 13px; color: var(--text2); margin-bottom: 16px; line-height: 1.5; }
   .apikey-steps { font-size: 12px; color: var(--text2); margin-bottom: 16px; line-height: 1.8; }
   .apikey-steps a { color: var(--blue); }
+
+  /* ── CAIXA ── */
+  .caixa-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .caixa-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .caixa-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .caixa-title i { color: #B8860B; font-size: 16px; }
+  .caixa-saldo-wrap {
+    background: #FDF8E1;
+    border: 1px solid #E8D48A;
+    border-radius: var(--r-md);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .caixa-saldo-label { font-size: 12px; color: #7A5700; font-weight: 500; }
+  .caixa-saldo-value { font-size: 26px; font-weight: 800; color: #7A5700; letter-spacing: -0.5px; }
+  .caixa-btns {
+    display: flex;
+    gap: 10px;
+  }
+  .btn-caixa {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    padding: 9px 12px;
+    font-size: 13px; font-weight: 500;
+    border-radius: var(--r-md);
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.12s;
+  }
+  .btn-caixa.entrada {
+    background: var(--green-bg);
+    color: var(--green-text);
+    border: 1px solid #c4e5b5;
+  }
+  .btn-caixa.entrada:hover { background: #d5edca; }
+  .btn-caixa.retirada {
+    background: var(--red-bg);
+    color: var(--red-text);
+    border: 1px solid #f3c9bb;
+  }
+  .btn-caixa.retirada:hover { background: #f5d5c8; }
+
+  /* Histórico do caixa */
+  .caixa-hist {
+    margin-top: 14px;
+    border-top: 1px solid var(--border);
+    padding-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 210px;
+    overflow-y: auto;
+  }
+  .caixa-hist-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text3);
+    margin-bottom: 4px;
+  }
+  .caixa-mov {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: var(--r-md);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    font-size: 12px;
+  }
+  .caixa-mov-icon {
+    width: 28px; height: 28px;
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .caixa-mov.entrada .caixa-mov-icon { background: var(--green-bg); color: var(--green); }
+  .caixa-mov.saida   .caixa-mov-icon { background: var(--red-bg);   color: var(--red);   }
+  .caixa-mov.deposito .caixa-mov-icon { background: #FDF8E1; color: #B8860B; }
+  .caixa-mov-info { flex: 1; min-width: 0; }
+  .caixa-mov-desc { font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .caixa-mov-date { font-size: 10px; color: var(--text3); margin-top: 1px; }
+  .caixa-mov-val { font-weight: 700; flex-shrink: 0; }
+  .caixa-mov.entrada .caixa-mov-val  { color: var(--green); }
+  .caixa-mov.saida   .caixa-mov-val  { color: var(--red); }
+  .caixa-mov.deposito .caixa-mov-val { color: #B8860B; }
+  .caixa-mov-del {
+    background: none; border: none; cursor: pointer;
+    color: var(--text3); font-size: 13px;
+    width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px; flex-shrink: 0;
+    transition: background 0.12s, color 0.12s;
+  }
+  .caixa-mov-del:hover { background: var(--red-bg); color: var(--red); }
+  .caixa-empty { font-size: 12px; color: var(--text3); text-align: center; padding: 16px 0; }
+
+  /* Modal caixa */
+  .type-btn.deposit.active { background: #FDF8E1; color: #7A5700; border-color: #B8860B; }
+
+  /* ══════════════════════════════════════════
+     IPHONE VIEW
+  ══════════════════════════════════════════ */
+  .iphone-stage {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 28px 20px 40px;
+    min-height: 100%;
+  }
+
+  .iphone-body {
+    width: 393px;
+    background: #1C1C1E;
+    border-radius: 52px;
+    padding: 14px;
+    box-shadow:
+      0 0 0 1px #3a3a3a,
+      0 0 0 2px #111,
+      4px 4px 0 2px #0a0a0a,
+      -4px 4px 0 2px #0a0a0a,
+      0 28px 80px rgba(0,0,0,.55),
+      inset 0 0 0 1px rgba(255,255,255,.10);
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  /* Side buttons */
+  .iphone-body::before {
+    content:'';
+    position:absolute;
+    left:-5px; top:110px;
+    width:4px; height:34px;
+    background:#2c2c2e;
+    border-radius:2px 0 0 2px;
+    box-shadow: 0 44px 0 #2c2c2e, 0 80px 0 #2c2c2e;
+  }
+  .iphone-body::after {
+    content:'';
+    position:absolute;
+    right:-5px; top:150px;
+    width:4px; height:70px;
+    background:#2c2c2e;
+    border-radius:0 2px 2px 0;
+  }
+
+  .iphone-screen {
+    background: var(--bg);
+    border-radius: 40px;
+    overflow: hidden;
+    height: 812px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  /* Dynamic Island */
+  .iphone-island {
+    position: absolute;
+    top: 12px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 126px;
+    height: 36px;
+    background: #1C1C1E;
+    border-radius: 20px;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .iph-camera {
+    width: 12px; height: 12px;
+    background: #2a2a2e;
+    border-radius: 50%;
+    border: 1px solid #333;
+  }
+  .iph-faceid {
+    width: 8px; height: 8px;
+    background: #2a2a2e;
+    border-radius: 50%;
+  }
+
+  /* Status bar */
+  .iph-statusbar {
+    background: var(--surface);
+    height: 56px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    padding: 0 28px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    flex-shrink: 0;
+  }
+  .iph-statusbar-time { font-size: 15px; font-weight: 700; }
+  .iph-statusbar-icons { display: flex; align-items: center; gap: 5px; font-size: 12px; }
+
+  /* Scrollable content inside phone */
+  .iph-content {
+    flex: 1;
+    overflow-y: auto;
+    scrollbar-width: none;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 10px 12px 0;
+  }
+  .iph-content::-webkit-scrollbar { display: none; }
+
+  /* Header inside phone */
+  .iph-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2px 0 6px;
+  }
+  .iph-header-title { font-size: 18px; font-weight: 700; color: var(--text); }
+  .iph-header-month {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 4px 8px;
+  }
+  .iph-header-month button {
+    background: none; border: none; cursor: pointer;
+    color: var(--text2); font-size: 16px; line-height: 1;
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px;
+    padding: 0;
+  }
+  .iph-header-month button:hover { background: var(--border); }
+  .iph-header-month span { font-size: 11px; font-weight: 600; color: var(--text); min-width: 64px; text-align: center; }
+
+  /* 2-col metrics grid */
+  .iph-metrics {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .iph-metric-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 14px;
+  }
+  .iph-metric-label {
+    font-size: 10px;
+    color: var(--text2);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-bottom: 6px;
+  }
+  .iph-metric-label i { font-size: 12px; }
+  .iph-metric-value { font-size: 16px; font-weight: 700; color: var(--text); }
+  .iph-metric-value.green { color: var(--green); }
+  .iph-metric-value.red { color: var(--red); }
+  .iph-metric-sub { font-size: 9px; color: var(--text3); margin-top: 3px; }
+
+  /* Compact caixa inside phone */
+  .iph-caixa-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 14px;
+  }
+  .iph-caixa-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .iph-caixa-title {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .iph-caixa-title i { color: #B8860B; font-size: 14px; }
+  .iph-caixa-saldo-wrap {
+    background: #FDF8E1;
+    border: 1px solid #E8D48A;
+    border-radius: 10px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .iph-caixa-saldo-label { font-size: 10px; color: #7A5700; font-weight: 500; }
+  .iph-caixa-saldo-value { font-size: 20px; font-weight: 800; color: #7A5700; }
+  .iph-caixa-btns { display: flex; gap: 8px; }
+  .iph-btn-caixa {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    padding: 8px 6px;
+    font-size: 11px; font-weight: 500;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.12s;
+  }
+  .iph-btn-caixa.entrada { background: var(--green-bg); color: var(--green-text); border: 1px solid #c4e5b5; }
+  .iph-btn-caixa.entrada:hover { background: #d5edca; }
+  .iph-btn-caixa.retirada { background: var(--red-bg); color: var(--red-text); border: 1px solid #f3c9bb; }
+  .iph-btn-caixa.retirada:hover { background: #f5d5c8; }
+
+  /* Compact caixa history */
+  .iph-caixa-hist {
+    margin-top: 10px;
+    border-top: 1px solid var(--border);
+    padding-top: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    max-height: 140px;
+    overflow-y: auto;
+    scrollbar-width: none;
+  }
+  .iph-caixa-hist::-webkit-scrollbar { display: none; }
+  .iph-caixa-hist-title {
+    font-size: 9px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text3);
+    margin-bottom: 3px;
+  }
+
+  /* Compact caixa movement row */
+  .iph-caixa-mov {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    font-size: 10px;
+  }
+  .iph-caixa-mov-icon {
+    width: 22px; height: 22px;
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; flex-shrink: 0;
+  }
+  .iph-caixa-mov.entrada .iph-caixa-mov-icon { background: var(--green-bg); color: var(--green); }
+  .iph-caixa-mov.saida   .iph-caixa-mov-icon { background: var(--red-bg);   color: var(--red);   }
+  .iph-caixa-mov.deposito .iph-caixa-mov-icon { background: #FDF8E1; color: #B8860B; }
+  .iph-caixa-mov-info { flex: 1; min-width: 0; }
+  .iph-caixa-mov-desc { font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .iph-caixa-mov-date { font-size: 9px; color: var(--text3); }
+  .iph-caixa-mov-val { font-weight: 700; flex-shrink: 0; font-size: 11px; }
+  .iph-caixa-mov.entrada .iph-caixa-mov-val  { color: var(--green); }
+  .iph-caixa-mov.saida   .iph-caixa-mov-val  { color: var(--red); }
+  .iph-caixa-mov.deposito .iph-caixa-mov-val { color: #B8860B; }
+
+  /* Recent transactions in phone */
+  .iph-list-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .iph-list-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  .iph-list-title { font-size: 12px; font-weight: 600; color: var(--text); }
+  .iph-filter-tabs { display: flex; gap: 3px; }
+  .iph-filter-tab {
+    padding: 3px 8px;
+    font-size: 10px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    cursor: pointer;
+    background: none;
+    color: var(--text2);
+    font-family: inherit;
+    transition: all 0.12s;
+  }
+  .iph-filter-tab:hover { background: var(--surface2); }
+  .iph-filter-tab.active { background: var(--blue-bg); color: var(--blue-text); border-color: #b5d4f4; font-weight: 500; }
+
+  .iph-entry-list {
+    display: flex;
+    flex-direction: column;
+    padding: 6px 10px 10px;
+    gap: 5px;
+  }
+  .iph-entry-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+  .iph-entry-icon {
+    width: 28px; height: 28px;
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+  }
+  .iph-entry-info { flex: 1; min-width: 0; }
+  .iph-entry-name { font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .iph-entry-meta { font-size: 9px; color: var(--text3); margin-top: 1px; }
+  .iph-entry-amount { font-size: 12px; font-weight: 700; flex-shrink: 0; }
+  .iph-entry-amount.income { color: var(--green); }
+  .iph-entry-amount.expense { color: var(--red); }
+  .iph-entry-del {
+    background: none; border: none; cursor: pointer;
+    color: var(--text3); font-size: 12px;
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px; flex-shrink: 0;
+    transition: background 0.12s, color 0.12s;
+  }
+  .iph-entry-del:hover { background: var(--red-bg); color: var(--red); }
+  .iph-empty {
+    text-align: center;
+    padding: 20px;
+    color: var(--text3);
+    font-size: 12px;
+  }
+  .iph-empty i { font-size: 22px; display: block; margin-bottom: 6px; opacity: 0.4; }
+
+  /* Bottom action bar inside phone */
+  .iph-bottom-bar {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 10px 12px 20px;
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  .iph-btn-novo {
+    flex: 2;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    background: var(--blue); color: #fff;
+    border: none; border-radius: 12px;
+    padding: 10px 12px; font-size: 13px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+    transition: background 0.12s;
+  }
+  .iph-btn-novo:hover { background: var(--blue-text); }
+  .iph-btn-add-cx {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    background: var(--green-bg); color: var(--green-text);
+    border: 1px solid #c4e5b5; border-radius: 12px;
+    padding: 10px 8px; font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+    transition: background 0.12s;
+  }
+  .iph-btn-add-cx:hover { background: #d5edca; }
+  .iph-btn-sub-cx {
+    flex: 1;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    background: var(--red-bg); color: var(--red-text);
+    border: 1px solid #f3c9bb; border-radius: 12px;
+    padding: 10px 8px; font-size: 12px; font-weight: 600;
+    cursor: pointer; font-family: inherit;
+    transition: background 0.12s;
+  }
+  .iph-btn-sub-cx:hover { background: #f5d5c8; }
+
+  /* Home indicator */
+  .iph-home-indicator {
+    height: 4px;
+    width: 120px;
+    background: #1C1C1E;
+    border-radius: 3px;
+    margin: 4px auto 12px;
+  }
+
 </style>
 </head>
 <body>
@@ -867,7 +1384,7 @@
     <div class="sidebar-logo">
       <div class="sidebar-logo-icon"><i class="ti ti-wallet"></i></div>
       <div>
-        <div class="sidebar-logo-text">FinanceApp</div>
+        <div class="sidebar-logo-text">Financeiro Família Sala</div>
         <div class="sidebar-logo-sub">Controle de despesas</div>
       </div>
     </div>
@@ -878,6 +1395,9 @@
     </button>
     <button class="nav-item" onclick="showView('entries', this)">
       <i class="ti ti-list"></i> Todos os lançamentos
+    </button>
+    <button class="nav-item" onclick="showView('iphone', this)">
+      <i class="ti ti-device-mobile"></i> iPhone
     </button>
 
     <div class="month-selector">
@@ -943,19 +1463,39 @@
         </div>
 
         <div class="charts-row">
-          <div class="card">
-            <div class="card-title">Despesas por categoria</div>
-            <div style="position:relative; width:100%; height:200px;">
-              <canvas id="pieChart" aria-label="Distribuição de despesas por categoria"></canvas>
+
+          <!-- CAIXA -->
+          <div class="caixa-card">
+            <div class="caixa-header">
+              <div class="caixa-title"><i class="ti ti-safe"></i> Caixa</div>
             </div>
-            <div class="legend" id="pie-legend"></div>
-          </div>
-          <div class="card">
-            <div class="card-title">Fixo vs Variável</div>
-            <div style="position:relative; width:100%; height:200px;">
-              <canvas id="barChart" aria-label="Comparação entre gastos fixos e variáveis"></canvas>
+            <div class="caixa-saldo-wrap">
+              <div>
+                <div class="caixa-saldo-label">Saldo em caixa</div>
+                <div class="caixa-saldo-value" id="caixa-saldo">R$ 0,00</div>
+              </div>
+              <i class="ti ti-coin" style="font-size:32px;color:#E8D48A;"></i>
+            </div>
+            <div class="caixa-btns">
+              <button class="btn-caixa entrada" onclick="openCaixaModal('entrada')">
+                <i class="ti ti-plus"></i> Adicionar caixa
+              </button>
+              <button class="btn-caixa retirada" onclick="openCaixaModal('saida')">
+                <i class="ti ti-minus"></i> Retirada caixa
+              </button>
+            </div>
+            <div class="caixa-hist">
+              <div class="caixa-hist-title">Movimentações</div>
+              <div id="caixa-hist-list"></div>
             </div>
           </div>
+
+          <!-- RESUMO MOVIMENTAÇÕES (substitui Fixo vs Variável) -->
+          <div class="card">
+            <div class="card-title">Resumo de movimentações do caixa</div>
+            <div id="caixa-resumo-list" style="display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto;"></div>
+          </div>
+
         </div>
 
         <div class="card">
@@ -1032,6 +1572,205 @@
         </div>
       </div>
 
+      <!-- ═══════════════════════════════════════
+           IPHONE VIEW
+      ════════════════════════════════════════ -->
+      <div class="view" id="view-iphone">
+        <div class="iphone-stage">
+          <div class="iphone-body">
+
+            <div class="iphone-screen">
+
+              <!-- Dynamic Island -->
+              <div class="iphone-island">
+                <div class="iph-faceid"></div>
+                <div class="iph-camera"></div>
+                <div class="iph-faceid"></div>
+              </div>
+
+              <!-- Status bar -->
+              <div class="iph-statusbar">
+                <span class="iph-statusbar-time" id="iph-clock">9:41</span>
+                <div class="iph-statusbar-icons">
+                  <i class="ti ti-wifi" style="font-size:13px;"></i>
+                  <i class="ti ti-signal-4g" style="font-size:11px;"></i>
+                  <i class="ti ti-battery-3" style="font-size:14px;"></i>
+                </div>
+              </div>
+
+              <!-- Scrollable content -->
+              <div class="iph-content">
+
+                <!-- Header: title + month nav -->
+                <div class="iph-header">
+                  <span class="iph-header-title">💰 Financeiro</span>
+                  <div class="iph-header-month">
+                    <button onclick="changeMonth(-1)" aria-label="Mês anterior">‹</button>
+                    <span id="iph-month"></span>
+                    <button onclick="changeMonth(1)" aria-label="Próximo mês">›</button>
+                  </div>
+                </div>
+
+                <!-- Metrics 2x2 -->
+                <div class="iph-metrics">
+                  <div class="iph-metric-card">
+                    <div class="iph-metric-label" style="color:#1D9E75;"><i class="ti ti-trending-up"></i> Receitas</div>
+                    <div class="iph-metric-value green" id="iph-m-income">R$ 0,00</div>
+                    <div class="iph-metric-sub" id="iph-m-income-sub">—</div>
+                  </div>
+                  <div class="iph-metric-card">
+                    <div class="iph-metric-label" style="color:#D85A30;"><i class="ti ti-trending-down"></i> Despesas</div>
+                    <div class="iph-metric-value red" id="iph-m-expense">R$ 0,00</div>
+                    <div class="iph-metric-sub" id="iph-m-expense-sub">—</div>
+                  </div>
+                  <div class="iph-metric-card">
+                    <div class="iph-metric-label"><i class="ti ti-scale" style="color:#378ADD;"></i> Saldo mês</div>
+                    <div class="iph-metric-value" id="iph-m-balance">R$ 0,00</div>
+                    <div class="iph-metric-sub" id="iph-m-balance-sub">—</div>
+                  </div>
+                  <div class="iph-metric-card">
+                    <div class="iph-metric-label"><i class="ti ti-chart-pie" style="color:#7F77DD;"></i> Taxa gasto</div>
+                    <div class="iph-metric-value" id="iph-m-rate">0%</div>
+                    <div class="iph-metric-sub">das receitas</div>
+                  </div>
+                </div>
+
+                <!-- Caixa compact -->
+                <div class="iph-caixa-card">
+                  <div class="iph-caixa-header">
+                    <div class="iph-caixa-title"><i class="ti ti-safe"></i> Caixa</div>
+                  </div>
+                  <div class="iph-caixa-saldo-wrap">
+                    <div>
+                      <div class="iph-caixa-saldo-label">Saldo em caixa</div>
+                      <div class="iph-caixa-saldo-value" id="iph-caixa-saldo">R$ 0,00</div>
+                    </div>
+                    <i class="ti ti-coin" style="font-size:26px;color:#E8D48A;"></i>
+                  </div>
+                  <div class="iph-caixa-btns">
+                    <button class="iph-btn-caixa entrada" onclick="openCaixaModal('entrada')">
+                      <i class="ti ti-plus"></i> Adicionar
+                    </button>
+                    <button class="iph-btn-caixa retirada" onclick="openCaixaModal('saida')">
+                      <i class="ti ti-minus"></i> Retirada
+                    </button>
+                  </div>
+                  <div class="iph-caixa-hist">
+                    <div class="iph-caixa-hist-title">Últimas movimentações</div>
+                    <div id="iph-caixa-hist-list"></div>
+                  </div>
+                </div>
+
+                <!-- Recent transactions -->
+                <div class="iph-list-section">
+                  <div class="iph-list-header">
+                    <span class="iph-list-title">Lançamentos recentes</span>
+                    <div class="iph-filter-tabs">
+                      <button class="iph-filter-tab active" onclick="setIphFilter('all', this)">Todos</button>
+                      <button class="iph-filter-tab" onclick="setIphFilter('income', this)">Rec.</button>
+                      <button class="iph-filter-tab" onclick="setIphFilter('expense', this)">Desp.</button>
+                    </div>
+                  </div>
+                  <div class="iph-entry-list" id="iph-dash-list"></div>
+                </div>
+
+                <!-- spacer so last items visible above bottom bar -->
+                <div style="height:4px;flex-shrink:0;"></div>
+
+              </div><!-- /iph-content -->
+
+              <!-- Bottom action bar -->
+              <div class="iph-bottom-bar">
+                <button class="iph-btn-novo" onclick="openModal()">
+                  <i class="ti ti-plus"></i> Novo lançamento
+                </button>
+                <button class="iph-btn-add-cx" onclick="openCaixaModal('entrada')">
+                  <i class="ti ti-safe"></i> +
+                </button>
+                <button class="iph-btn-sub-cx" onclick="openCaixaModal('saida')">
+                  <i class="ti ti-safe"></i> −
+                </button>
+              </div>
+
+              <div class="iph-home-indicator"></div>
+
+            </div><!-- /iphone-screen -->
+          </div><!-- /iphone-body -->
+        </div><!-- /iphone-stage -->
+      </div><!-- /view-iphone -->
+
+    </div>
+  </div>
+</div>
+
+<!-- CAIXA MODAL -->
+<div class="modal-overlay" id="caixa-modal" onclick="handleCaixaOverlayClick(event)">
+  <div class="modal" style="width:420px;">
+    <div class="modal-title" id="caixa-modal-title">Adicionar ao caixa</div>
+
+    <!-- API KEY BANNER -->
+    <div class="api-key-banner" id="caixa-api-key-banner">
+      <i class="ti ti-key"></i>
+      <span>Configure sua <a onclick="openApiKeyModal()">chave da API Gemini</a> para usar voz e leitura de comprovantes.</span>
+    </div>
+
+    <!-- AI SMART INPUT TABS -->
+    <div class="ai-section" id="caixa-ai-section">
+      <div class="ai-tabs">
+        <button class="ai-tab active" id="caixa-ai-tab-manual" onclick="switchCaixaAiTab('manual')">
+          <i class="ti ti-pencil"></i> Manual
+        </button>
+        <button class="ai-tab" id="caixa-ai-tab-voice" onclick="switchCaixaAiTab('voice')">
+          <i class="ti ti-microphone"></i> Voz
+        </button>
+        <button class="ai-tab" id="caixa-ai-tab-receipt" onclick="switchCaixaAiTab('receipt')">
+          <i class="ti ti-file-invoice"></i> Comprovante
+        </button>
+      </div>
+      <div class="ai-panel active" id="caixa-ai-panel-manual">
+        <p style="font-size:12px;color:var(--text3);margin:4px 0;">Preencha os campos abaixo manualmente.</p>
+      </div>
+      <div class="ai-panel" id="caixa-ai-panel-voice">
+        <button class="mic-btn" id="caixa-mic-btn" onclick="toggleCaixaRecording()">
+          <i class="ti ti-microphone" id="caixa-mic-icon"></i>
+          <span class="mic-label" id="caixa-mic-label">Clique e fale o valor</span>
+          <span class="mic-sub" id="caixa-mic-sub">Ex: "Pix recebido de 500 reais"</span>
+        </button>
+        <div class="voice-transcript" id="caixa-voice-transcript"></div>
+        <div class="ai-status" id="caixa-voice-status">
+          <div class="spinner"></div>
+          <span id="caixa-voice-status-text">Processando com IA...</span>
+        </div>
+      </div>
+      <div class="ai-panel" id="caixa-ai-panel-receipt">
+        <div class="drop-zone" id="caixa-drop-zone" onclick="document.getElementById('caixa-receipt-input').click()" ondragover="onDragOver2(event)" ondragleave="onDragLeave2(event)" ondrop="onDrop2(event)">
+          <i class="ti ti-upload"></i>
+          <span class="dz-label">Clique ou arraste o comprovante</span>
+          <span class="dz-sub">Foto, print ou PDF (JPG, PNG, WEBP)</span>
+        </div>
+        <input type="file" id="caixa-receipt-input" accept="image/*" style="display:none" onchange="onCaixaReceiptFile(event)">
+        <div class="ai-status" id="caixa-receipt-status">
+          <div class="spinner"></div>
+          <span>Analisando comprovante com IA...</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label" for="caixa-f-desc">Descrição</label>
+      <input class="form-input" type="text" id="caixa-f-desc" placeholder="Ex: Pix recebido, Retirada para compras...">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="caixa-f-amount">Valor (R$)</label>
+      <input class="form-input" type="number" id="caixa-f-amount" placeholder="0,00" min="0.01" step="0.01">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="caixa-f-date">Data</label>
+      <input class="form-input" type="date" id="caixa-f-date">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeCaixaModal()">Cancelar</button>
+      <button class="btn-save" id="caixa-btn-save" onclick="saveCaixaMov()">Confirmar</button>
     </div>
   </div>
 </div>
@@ -1127,6 +1866,9 @@
         <button class="type-btn income" id="btn-income" onclick="setType('income')">
           <i class="ti ti-arrow-up-circle"></i> Receita
         </button>
+        <button class="type-btn deposit" id="btn-deposit" onclick="setType('deposit')">
+          <i class="ti ti-safe"></i> Depósito
+        </button>
       </div>
     </div>
 
@@ -1216,7 +1958,7 @@ let curYear  = 2026;
 let curType = 'expense';
 let editingId = null;
 let dashFilter = 'all';
-let pieChart = null, barChart = null;
+let pieChart = null, barChart = null; // kept for compatibility
 
 let entries = [];
 try { entries = JSON.parse(localStorage.getItem('finapp_entries') || '[]'); } catch(e) {}
@@ -1275,64 +2017,314 @@ function updateMetrics(t) {
   document.getElementById('m-balance-sub').textContent = t.bal >= 0 ? '✓ Saldo positivo' : '✗ Saldo negativo';
   document.getElementById('m-rate').textContent = t.rate + '%';
   document.getElementById('m-rate').className = 'metric-value ' + (t.rate > 100 ? 'red' : t.rate > 80 ? '' : 'green');
+
+  // ── iPhone mirror
+  document.getElementById('iph-m-income').textContent = fmt(t.ti);
+  document.getElementById('iph-m-income-sub').textContent = `F: ${fmt(t.fi)} · V: ${fmt(t.vi)}`;
+  document.getElementById('iph-m-expense').textContent = fmt(t.te);
+  document.getElementById('iph-m-expense-sub').textContent = `F: ${fmt(t.fe)} · V: ${fmt(t.ve)}`;
+  const iphBal = document.getElementById('iph-m-balance');
+  iphBal.textContent = fmt(t.bal);
+  iphBal.className = 'iph-metric-value ' + (t.bal >= 0 ? 'green' : 'red');
+  document.getElementById('iph-m-balance-sub').textContent = t.bal >= 0 ? '✓ Positivo' : '✗ Negativo';
+  document.getElementById('iph-m-rate').textContent = t.rate + '%';
+  document.getElementById('iph-m-rate').className = 'iph-metric-value ' + (t.rate > 100 ? 'red' : t.rate > 80 ? '' : 'green');
 }
 
-function updateCharts(list) {
-  const expenses = list.filter(e => e.type === 'expense');
-  const catMap = {};
-  expenses.forEach(e => { catMap[e.cat] = (catMap[e.cat] || 0) + e.amount; });
-  const cats = Object.keys(catMap);
-  const vals = cats.map(c => parseFloat(catMap[c].toFixed(2)));
-  const colors = cats.map(c => CAT_COLORS[c] || '#888780');
+// ─── CAIXA ───────────────────────────────────────────────────────────────────
+let caixaMovs = [];
+try { caixaMovs = JSON.parse(localStorage.getItem('finapp_caixa') || '[]'); } catch(e) {}
 
-  if (pieChart) pieChart.destroy();
-  const ctx1 = document.getElementById('pieChart').getContext('2d');
-  pieChart = new Chart(ctx1, {
-    type: 'doughnut',
-    data: { labels: cats, datasets: [{ data: vals, backgroundColor: colors, borderWidth: 2, borderColor: '#fff' }] },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: {
-        callbacks: { label: ctx => ` ${ctx.label}: ${fmt(ctx.raw)}` }
-      }},
-      cutout: '58%'
-    }
-  });
+function persistCaixa() {
+  try { localStorage.setItem('finapp_caixa', JSON.stringify(caixaMovs)); } catch(e) {}
+  localStorage.setItem('finapp_lastmod', new Date().toISOString());
+  if (typeof gsUpdateLastMod === 'function') gsUpdateLastMod();
+  if (typeof gsScheduleSync === 'function') gsScheduleSync();
+}
 
-  const legend = document.getElementById('pie-legend');
-  if (cats.length === 0) {
-    legend.innerHTML = '<span style="font-size:12px;color:#a0a09a">Sem despesas no período</span>';
-  } else {
-    legend.innerHTML = cats.map((c,i) =>
-      `<span class="legend-item"><span class="legend-dot" style="background:${colors[i]}"></span>${c}: ${fmt(vals[i])}</span>`
-    ).join('');
+function caixaSaldo() {
+  return caixaMovs.reduce((s, m) => {
+    if (m.op === 'saida') return s - m.amount;
+    return s + m.amount; // entrada e deposito somam
+  }, 0);
+}
+
+function addCaixaMov(op, desc, amount, dateStr) {
+  const id = 'cx' + Date.now();
+  caixaMovs.unshift({ id, op, desc, amount, date: dateStr || new Date().toISOString().slice(0,10) });
+  persistCaixa();
+  renderCaixa();
+}
+
+function deleteCaixaMov(id) {
+  caixaMovs = caixaMovs.filter(m => m.id !== id);
+  persistCaixa();
+  renderCaixa();
+}
+
+function renderCaixa() {
+  const saldo = caixaSaldo();
+  document.getElementById('caixa-saldo').textContent = fmt(saldo);
+  document.getElementById('caixa-saldo').style.color = saldo < 0 ? 'var(--red-text)' : '#7A5700';
+
+  // ── iPhone caixa saldo
+  document.getElementById('iph-caixa-saldo').textContent = fmt(saldo);
+  document.getElementById('iph-caixa-saldo').style.color = saldo < 0 ? 'var(--red-text)' : '#7A5700';
+
+  const histEl = document.getElementById('caixa-hist-list');
+  const resumoEl = document.getElementById('caixa-resumo-list');
+  const iphHistEl = document.getElementById('iph-caixa-hist-list');
+
+  if (!caixaMovs.length) {
+    histEl.innerHTML = '<div class="caixa-empty">Nenhuma movimentação ainda</div>';
+    resumoEl.innerHTML = '<div class="caixa-empty" style="padding:32px 0">Nenhuma movimentação registrada no caixa</div>';
+    iphHistEl.innerHTML = '<div class="iph-empty" style="padding:12px 0;font-size:11px;">Nenhuma movimentação</div>';
+    return;
   }
 
-  const t = totals(list);
-  if (barChart) barChart.destroy();
-  const ctx2 = document.getElementById('barChart').getContext('2d');
-  barChart = new Chart(ctx2, {
-    type: 'bar',
-    data: {
-      labels: ['Fixo', 'Variável'],
-      datasets: [
-        { label: 'Receitas', data: [parseFloat(t.fi.toFixed(2)), parseFloat(t.vi.toFixed(2))], backgroundColor: '#1D9E75', borderRadius: 4 },
-        { label: 'Despesas', data: [parseFloat(t.fe.toFixed(2)), parseFloat(t.ve.toFixed(2))], backgroundColor: '#D85A30', borderRadius: 4 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { labels: { color: '#6b6b66', boxWidth: 12, font: { size: 11 } } },
-        tooltip: { callbacks: { label: ctx => ` ${ctx.dataset.label}: ${fmt(ctx.raw)}` } }
-      },
-      scales: {
-        x: { ticks: { color: '#6b6b66', font: { size: 11 } }, grid: { display: false } },
-        y: { ticks: { color: '#6b6b66', font: { size: 11 }, callback: v => 'R$' + (v >= 1000 ? (v/1000).toFixed(1)+'k' : v) }, grid: { color: '#e0dfd8' }, border: { display: false } }
-      }
-    }
-  });
+  const iconMap   = { entrada: 'ti-arrow-down-circle', saida: 'ti-arrow-up-circle', deposito: 'ti-safe' };
+  const labelMap  = { entrada: 'Adicionado ao caixa', saida: 'Retirada do caixa', deposito: 'Depósito' };
+  const signMap   = { entrada: '+', saida: '−', deposito: '+' };
+
+  histEl.innerHTML = caixaMovs.slice(0, 30).map(m => {
+    const d = m.date ? m.date.split('-').reverse().join('/') : '—';
+    return `<div class="caixa-mov ${m.op}">
+      <div class="caixa-mov-icon"><i class="ti ${iconMap[m.op]}"></i></div>
+      <div class="caixa-mov-info">
+        <div class="caixa-mov-desc">${m.desc}</div>
+        <div class="caixa-mov-date">${d}</div>
+      </div>
+      <div class="caixa-mov-val">${signMap[m.op]}${fmt(m.amount)}</div>
+      <button class="caixa-mov-del" onclick="deleteCaixaMov('${m.id}')" title="Remover"><i class="ti ti-trash"></i></button>
+    </div>`;
+  }).join('');
+
+  // Resumo informativo (painel direito)
+  resumoEl.innerHTML = caixaMovs.slice(0, 20).map(m => {
+    const d = m.date ? m.date.split('-').reverse().join('/') : '—';
+    let texto = '';
+    if (m.op === 'entrada') texto = `Entrada de ${fmt(m.amount)} adicionada ao caixa`;
+    else if (m.op === 'saida') texto = `Retirada de ${fmt(m.amount)} do caixa`;
+    else texto = `Depósito de ${fmt(m.amount)} via lançamento`;
+    const desc = m.desc ? ` — ${m.desc}` : '';
+    const cor = m.op === 'saida' ? 'var(--red-text)' : m.op === 'deposito' ? '#7A5700' : 'var(--green-text)';
+    const bg  = m.op === 'saida' ? 'var(--red-bg)'   : m.op === 'deposito' ? '#FDF8E1'  : 'var(--green-bg)';
+    const ic  = m.op === 'saida' ? 'ti-arrow-up-circle' : m.op === 'deposito' ? 'ti-safe' : 'ti-arrow-down-circle';
+    return `<div style="display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--r-md);background:${bg};border:1px solid ${bg};">
+      <i class="ti ${ic}" style="font-size:16px;color:${cor};flex-shrink:0;"></i>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12px;font-weight:500;color:${cor};">${texto}${desc}</div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px;">${d}</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // ── iPhone history (compact, max 5 items)
+  iphHistEl.innerHTML = caixaMovs.slice(0, 5).map(m => {
+    const d = m.date ? m.date.split('-').reverse().join('/') : '—';
+    return `<div class="iph-caixa-mov ${m.op}">
+      <div class="iph-caixa-mov-icon"><i class="ti ${iconMap[m.op]}"></i></div>
+      <div class="iph-caixa-mov-info">
+        <div class="iph-caixa-mov-desc">${m.desc}</div>
+        <div class="iph-caixa-mov-date">${d}</div>
+      </div>
+      <div class="iph-caixa-mov-val">${signMap[m.op]}${fmt(m.amount)}</div>
+    </div>`;
+  }).join('');
 }
+
+// Modal caixa
+let caixaModalOp = 'entrada';
+
+function openCaixaModal(op) {
+  caixaModalOp = op;
+  const title = op === 'entrada' ? 'Adicionar ao caixa' : 'Retirada do caixa';
+  document.getElementById('caixa-modal-title').textContent = title;
+  document.getElementById('caixa-btn-save').textContent = op === 'entrada' ? 'Confirmar entrada' : 'Confirmar retirada';
+  document.getElementById('caixa-f-desc').value = '';
+  document.getElementById('caixa-f-amount').value = '';
+  const now2 = new Date();
+  document.getElementById('caixa-f-date').value = `${now2.getFullYear()}-${String(now2.getMonth()+1).padStart(2,'0')}-${String(now2.getDate()).padStart(2,'0')}`;
+  // reset AI tabs
+  switchCaixaAiTab('manual');
+  caixaLastTranscript = '';
+  document.getElementById('caixa-voice-transcript').className = 'voice-transcript';
+  document.getElementById('caixa-voice-transcript').textContent = '';
+  hideStatus('caixa-voice-status');
+  hideStatus('caixa-receipt-status');
+  const dz = document.getElementById('caixa-drop-zone');
+  dz.classList.remove('has-preview');
+  dz.innerHTML = `<i class="ti ti-upload"></i><span class="dz-label">Clique ou arraste o comprovante</span><span class="dz-sub">Foto, print ou PDF (JPG, PNG, WEBP)</span>`;
+  document.getElementById('caixa-receipt-input').value = '';
+  // banner
+  const banner = document.getElementById('caixa-api-key-banner');
+  if (!GEMINI_KEY) banner.classList.add('show'); else banner.classList.remove('show');
+  document.getElementById('caixa-modal').classList.add('open');
+  setTimeout(() => document.getElementById('caixa-f-desc').focus(), 100);
+}
+
+function closeCaixaModal() {
+  document.getElementById('caixa-modal').classList.remove('open');
+  if (caixaRecognition) { try { caixaRecognition.stop(); } catch(e){} }
+  caixaIsRecording = false;
+}
+
+function handleCaixaOverlayClick(e) {
+  if (e.target === document.getElementById('caixa-modal')) closeCaixaModal();
+}
+
+function saveCaixaMov() {
+  const desc = document.getElementById('caixa-f-desc').value.trim();
+  const amount = parseFloat(document.getElementById('caixa-f-amount').value);
+  const date = document.getElementById('caixa-f-date').value;
+  if (!desc) { document.getElementById('caixa-f-desc').focus(); return; }
+  if (!amount || amount <= 0) { document.getElementById('caixa-f-amount').focus(); return; }
+  addCaixaMov(caixaModalOp, desc, amount, date);
+  closeCaixaModal();
+}
+
+// ─── AI PARA CAIXA (voz + imagem) ────────────────────────────────────────────
+let caixaActiveAiTab = 'manual';
+let caixaRecognition = null;
+let caixaIsRecording = false;
+let caixaLastTranscript = '';
+
+function switchCaixaAiTab(tab) {
+  caixaActiveAiTab = tab;
+  ['manual','voice','receipt'].forEach(t => {
+    document.getElementById('caixa-ai-tab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('caixa-ai-panel-'+t).classList.toggle('active', t===tab);
+  });
+  if (tab !== 'voice' && caixaIsRecording) stopCaixaRecording();
+}
+
+function toggleCaixaRecording() {
+  if (!GEMINI_KEY) { openApiKeyModal(); return; }
+  if (caixaIsRecording) stopCaixaRecording(); else startCaixaRecording();
+}
+
+function startCaixaRecording() {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SpeechRecognition) {
+    showStatus('caixa-voice-status', 'error', 'Seu navegador não suporta reconhecimento de voz.');
+    return;
+  }
+  caixaRecognition = new SpeechRecognition();
+  caixaRecognition.lang = 'pt-BR';
+  caixaRecognition.continuous = false;
+  caixaRecognition.interimResults = true;
+  caixaRecognition.onstart = () => {
+    caixaIsRecording = true;
+    document.getElementById('caixa-mic-btn').classList.add('recording');
+    document.getElementById('caixa-mic-icon').className = 'ti ti-microphone-off';
+    document.getElementById('caixa-mic-label').textContent = 'Gravando... clique para parar';
+    document.getElementById('caixa-mic-sub').textContent = 'Fale claramente perto do microfone';
+    hideStatus('caixa-voice-status');
+  };
+  caixaRecognition.onresult = (event) => {
+    let final = '', interim = '';
+    for (let i = event.resultIndex; i < event.results.length; i++) {
+      const t = event.results[i][0].transcript;
+      if (event.results[i].isFinal) final += t; else interim += t;
+    }
+    const display = final || interim;
+    if (display) {
+      const el = document.getElementById('caixa-voice-transcript');
+      el.textContent = display; el.className = 'voice-transcript has-text';
+      caixaLastTranscript = display;
+    }
+  };
+  caixaRecognition.onend = () => {
+    caixaIsRecording = false;
+    document.getElementById('caixa-mic-btn').classList.remove('recording');
+    document.getElementById('caixa-mic-icon').className = 'ti ti-microphone';
+    document.getElementById('caixa-mic-label').textContent = 'Clique e fale o valor';
+    document.getElementById('caixa-mic-sub').textContent = 'Ex: "Pix recebido de 500 reais"';
+    if (caixaLastTranscript) processCaixaVoice(caixaLastTranscript);
+  };
+  caixaRecognition.onerror = (event) => {
+    caixaIsRecording = false;
+    document.getElementById('caixa-mic-btn').classList.remove('recording');
+    let msg = 'Erro no microfone: ' + event.error;
+    if (event.error === 'not-allowed') msg = 'Permissão de microfone negada.';
+    if (event.error === 'no-speech') msg = 'Nenhuma fala detectada. Tente novamente.';
+    showStatus('caixa-voice-status', 'error', msg);
+  };
+  try { caixaRecognition.start(); } catch(e) { showStatus('caixa-voice-status','error','Não foi possível iniciar o microfone.'); }
+}
+
+function stopCaixaRecording() {
+  if (caixaRecognition) { try { caixaRecognition.stop(); } catch(e){} }
+  caixaIsRecording = false;
+}
+
+async function processCaixaVoice(text) {
+  showStatus('caixa-voice-status', 'loading', 'Interpretando com IA...');
+  try {
+    const prompt = `Você é um assistente de caixa. Da seguinte frase falada, extraia o valor e a descrição de uma movimentação de caixa.
+Frase: "${text}"
+Responda APENAS com JSON válido:
+{"desc": "descrição curta", "amount": 0.00}
+- amount deve ser número positivo com ponto decimal
+- desc deve ser conciso (max 40 chars)`;
+    const raw = await callGemini(prompt, null, null);
+    const clean = raw.replace(/\`\`\`json|\`\`\`/g,'').trim();
+    const parsed = JSON.parse(clean);
+    if (parsed.desc) document.getElementById('caixa-f-desc').value = parsed.desc;
+    if (parsed.amount) document.getElementById('caixa-f-amount').value = parsed.amount;
+    showStatus('caixa-voice-status', 'success', '✓ Campos preenchidos! Confira e salve.');
+    switchCaixaAiTab('manual');
+    setTimeout(() => hideStatus('caixa-voice-status'), 4000);
+  } catch(err) {
+    if (err.message !== 'no_key') showStatus('caixa-voice-status', 'error', 'Erro: ' + err.message);
+  }
+}
+
+function onDragOver2(e) { e.preventDefault(); document.getElementById('caixa-drop-zone').classList.add('dragover'); }
+function onDragLeave2(e) { document.getElementById('caixa-drop-zone').classList.remove('dragover'); }
+function onDrop2(e) {
+  e.preventDefault();
+  document.getElementById('caixa-drop-zone').classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) processCaixaReceiptFile(file);
+}
+function onCaixaReceiptFile(event) {
+  const file = event.target.files[0];
+  if (file) processCaixaReceiptFile(file);
+}
+
+async function processCaixaReceiptFile(file) {
+  if (!GEMINI_KEY) { openApiKeyModal(); return; }
+  const mt = file.type || 'image/jpeg';
+  const reader = new FileReader();
+  reader.onload = async (ev) => {
+    const base64 = ev.target.result.split(',')[1];
+    const dz = document.getElementById('caixa-drop-zone');
+    dz.classList.add('has-preview');
+    dz.innerHTML = `<img src="${ev.target.result}" class="receipt-preview" alt="Comprovante">`;
+    showStatus('caixa-receipt-status', 'loading', 'Lendo comprovante com IA...');
+    try {
+      const prompt = `Você é um assistente de caixa. Analise esta imagem de comprovante e extraia o valor e uma descrição da movimentação.
+Responda APENAS com JSON válido:
+{"desc": "descrição curta", "amount": 0.00}
+- amount deve ser número positivo com ponto decimal
+- desc deve ser conciso (max 40 chars), ex: "Pix recebido", "Depósito", "Pagamento"`;
+      const raw = await callGemini(prompt, base64, mt);
+      const clean = raw.replace(/\`\`\`json|\`\`\`/g,'').trim();
+      const parsed = JSON.parse(clean);
+      if (parsed.desc) document.getElementById('caixa-f-desc').value = parsed.desc;
+      if (parsed.amount) document.getElementById('caixa-f-amount').value = parsed.amount;
+      showStatus('caixa-receipt-status', 'success', '✓ Dados extraídos! Confira e salve.');
+      switchCaixaAiTab('manual');
+      setTimeout(() => hideStatus('caixa-receipt-status'), 4000);
+    } catch(err) {
+      if (err.message !== 'no_key') showStatus('caixa-receipt-status', 'error', 'Erro: ' + err.message);
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+
 
 function entryHTML(e) {
   const isIncome = e.type === 'income';
@@ -1457,12 +2449,14 @@ function renderAll() {
   const t = totals(list);
   updateSidebar(t);
   updateMetrics(t);
-  updateCharts(list);
   renderList('dash-list', dashFilter);
   renderPanels();
+  renderCaixa();
+  renderIphList();
   const monthStr = MONTHS[curMonth] + ' ' + curYear;
   document.getElementById('month-label').textContent = MONTHS[curMonth].slice(0,3) + ' ' + curYear;
   document.getElementById('topbar-month').textContent = monthStr;
+  document.getElementById('iph-month').textContent = MONTHS[curMonth].slice(0,3) + ' ' + curYear;
 }
 
 function setFilter(f, btn, view) {
@@ -1494,9 +2488,65 @@ function showView(view, btn) {
   document.getElementById('view-' + view).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  document.getElementById('view-title').textContent = view === 'dashboard' ? 'Painel geral' : 'Lançamentos do mês';
-  if (view === 'entries') renderPanels();
+  if (view === 'dashboard') {
+    document.getElementById('view-title').textContent = 'Painel geral';
+  } else if (view === 'entries') {
+    document.getElementById('view-title').textContent = 'Lançamentos do mês';
+    renderPanels();
+  } else if (view === 'iphone') {
+    document.getElementById('view-title').textContent = 'Visualização iPhone';
+    updateIphClock();
+  }
 }
+
+// ─────────────────────────────────────────────
+// IPHONE VIEW HELPERS
+// ─────────────────────────────────────────────
+let iphFilter = 'all';
+
+function setIphFilter(f, btn) {
+  iphFilter = f;
+  btn.closest('.iph-filter-tabs').querySelectorAll('.iph-filter-tab').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderIphList();
+}
+
+function renderIphList() {
+  const list = applyFilter(getMonthEntries(), iphFilter).sort((a,b) => (b.day||1) - (a.day||1));
+  const el = document.getElementById('iph-dash-list');
+  if (!list.length) {
+    el.innerHTML = `<div class="iph-empty"><i class="ti ti-inbox"></i>Nenhum lançamento encontrado.</div>`;
+    return;
+  }
+  el.innerHTML = list.slice(0, 20).map(e => {
+    const isIncome = e.type === 'income';
+    const icon = isIncome ? 'ti-trending-up' : (CAT_ICONS[e.cat] || 'ti-package');
+    const iconBg = isIncome ? '#EAF3DE' : (CAT_COLORS[e.cat] ? CAT_COLORS[e.cat] + '22' : '#f1f1ee');
+    const iconColor = isIncome ? '#1D9E75' : (CAT_COLORS[e.cat] || '#888780');
+    const meta = (isIncome ? 'Receita' : e.cat) + (e.day ? ` · dia ${e.day}` : '');
+    return `<div class="iph-entry-row">
+      <div class="iph-entry-icon" style="background:${iconBg};color:${iconColor}"><i class="ti ${icon}"></i></div>
+      <div class="iph-entry-info">
+        <div class="iph-entry-name">${e.name}</div>
+        <div class="iph-entry-meta">${meta}</div>
+      </div>
+      <span class="iph-entry-amount ${isIncome ? 'income' : 'expense'}">${isIncome ? '+' : '−'}${fmt(e.amount)}</span>
+      <button class="iph-entry-del" onclick="deleteEntry('${e.id}')" title="Remover"><i class="ti ti-trash"></i></button>
+    </div>`;
+  }).join('');
+}
+
+function updateIphClock() {
+  const now2 = new Date();
+  const h = String(now2.getHours()).padStart(2,'0');
+  const m = String(now2.getMinutes()).padStart(2,'0');
+  const el = document.getElementById('iph-clock');
+  if (el) el.textContent = h + ':' + m;
+}
+
+// Update clock every minute
+setInterval(updateIphClock, 60000);
+updateIphClock();
 
 function setFreq(val) {
   document.getElementById('installment-group').style.display = val === 'installment' ? 'block' : 'none';
@@ -1505,8 +2555,15 @@ function setFreq(val) {
 function setType(t) {
   curType = t;
   document.getElementById('btn-expense').className = 'type-btn expense' + (t === 'expense' ? ' active' : '');
-  document.getElementById('btn-income').className = 'type-btn income' + (t === 'income' ? ' active' : '');
+  document.getElementById('btn-income').className  = 'type-btn income'  + (t === 'income'  ? ' active' : '');
+  document.getElementById('btn-deposit').className = 'type-btn deposit' + (t === 'deposit' ? ' active' : '');
   document.getElementById('cat-group').style.display = t === 'expense' ? 'block' : 'none';
+  // Se depósito: ajusta label do modal
+  if (t === 'deposit') {
+    document.getElementById('modal-title').textContent = 'Novo depósito em caixa';
+  } else if (!document.getElementById('modal-title').textContent.includes('Editar')) {
+    document.getElementById('modal-title').textContent = 'Novo lançamento';
+  }
 }
 
 function _defaultDate() {
@@ -1574,6 +2631,15 @@ function saveEntry() {
   const entryDay = dateParts ? parseInt(dateParts[2]) : 1;
   const startMonth = dateParts ? parseInt(dateParts[1]) - 1 : curMonth;
   const startYear = dateParts ? parseInt(dateParts[0]) : curYear;
+
+  // Se tipo depósito: alimenta o caixa e não cria lançamento normal
+  if (curType === 'deposit') {
+    const desc = name || 'Depósito via lançamento';
+    const dateVal2 = document.getElementById('f-date').value;
+    addCaixaMov('deposito', desc, parseFloat(amount.toFixed(2)), dateVal2);
+    closeModal();
+    return;
+  }
 
   if (editingId) {
     // Modo edição — atualiza só este lançamento
@@ -2064,6 +3130,7 @@ if (entries.length === 0) {
 }
 
 renderAll();
+renderCaixa();
 </script>
 
 <!-- ═══════════════════════════════════════════
@@ -2254,10 +3321,11 @@ async function gsPush() {
   _gsBusy = true;
   gsDot('busy', 'Sincronizando...');
   try {
+    const payload = { entries, caixa: caixaMovs };
     const r = await fetch(_gsUrl + '?method=write&sheetId=' + encodeURIComponent(_gsSid), {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(entries)
+      body: JSON.stringify(payload)
     });
     const j = await r.json();
     if (j.ok) {
@@ -2281,9 +3349,19 @@ async function gsPull() {
     try { remote = JSON.parse(txt); } catch(e) {}
 
     if (Array.isArray(remote) && remote.length > 0) {
-      // Só substitui se remoto tiver dados
+      // Só substitui se remoto tiver dados (formato antigo: array)
       entries = remote;
       try { localStorage.setItem('finapp_entries', JSON.stringify(entries)); } catch(e) {}
+      try { localStorage.setItem('finapp_lastmod', new Date().toISOString()); } catch(e) {}
+      renderAll();
+      gsUpdateLastMod();
+      gsDot('ok', 'Sheets: dados atualizados ✓');
+    } else if (remote && remote.entries) {
+      // Novo formato com caixa
+      entries = remote.entries || [];
+      caixaMovs = remote.caixa || [];
+      try { localStorage.setItem('finapp_entries', JSON.stringify(entries)); } catch(e) {}
+      try { localStorage.setItem('finapp_caixa', JSON.stringify(caixaMovs)); } catch(e) {}
       try { localStorage.setItem('finapp_lastmod', new Date().toISOString()); } catch(e) {}
       renderAll();
       gsUpdateLastMod();

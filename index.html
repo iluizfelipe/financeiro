@@ -1623,32 +1623,21 @@
     <div class="login-sub">Digite sua senha para entrar</div>
 
     <!--
-      Form real com username + password → navegador/Safari oferece salvar
-      e nas próximas vezes usa Face ID / Touch ID / biometria automaticamente
+      action="" + method="get" → recarrega a mesma página com ?auth=ok
+      Isso é o que faz Chrome/Safari reconhecerem como login bem-sucedido
+      e oferecerem salvar + Face ID nas próximas visitas
     -->
-    <form id="login-form" autocomplete="on" onsubmit="loginSubmit(event)" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:0;">
+    <form id="login-form" action="" method="get" autocomplete="on"
+          style="width:100%;display:flex;flex-direction:column;align-items:center;">
 
-      <!-- Username oculto: necessário para o gerenciador de senhas associar -->
-      <input type="text" name="username" autocomplete="username"
-             value="familia" style="display:none;" readonly aria-hidden="true">
+      <!-- username fixo oculto: obrigatório para gerenciador de senhas associar -->
+      <input type="text"     name="username"  autocomplete="username"         value="familia" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;" readonly tabindex="-1">
+      <!-- campo de senha: oculto visualmente, ativo para autofill/biometria   -->
+      <input type="password" name="auth"      autocomplete="current-password" id="login-pw-input"
+             maxlength="6" inputmode="numeric" tabindex="-1"
+             style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;">
 
-      <!-- Campo de senha visível e estilizado -->
-      <div class="login-pw-wrap">
-        <input
-          type="password"
-          id="login-pw-input"
-          name="password"
-          autocomplete="current-password"
-          placeholder="••••••"
-          maxlength="6"
-          inputmode="numeric"
-          pattern="[0-9]*"
-          oninput="loginInputChange(this.value)"
-          style="display:none;"
-        >
-      </div>
-
-      <!-- Pontos visuais de progresso -->
+      <!-- Pontos visuais -->
       <div class="login-pin-dots" id="pin-dots">
         <div class="pin-dot" id="dot0"></div>
         <div class="pin-dot" id="dot1"></div>
@@ -1674,10 +1663,8 @@
         <button type="button" class="numpad-btn del-btn-num" onclick="loginDel()"><i class="ti ti-backspace"></i></button>
       </div>
 
-      <!-- Botão submit oculto — acionado via JS para disparar o "salvar senha" do navegador -->
-      <button type="submit" id="login-submit-btn" class="login-submit-btn" style="margin-top:16px;width:100%;max-width:240px;">
-        Entrar
-      </button>
+      <!-- Submit real — o navegador intercepta aqui e oferece salvar -->
+      <button type="submit" id="login-submit-btn" class="login-submit-btn">Entrar</button>
 
     </form>
 
@@ -3790,24 +3777,42 @@ async function gsTestSave() {
 (function() {
   const CORRECT_PIN = '130721';
   const PIN_LENGTH  = 6;
-  const SESSION_KEY = 'finapp_session';
 
+  // ── 1. Se chegou com ?auth=ok na URL → senha foi submetida pelo form ──────
+  //    Verifica aqui, antes de qualquer outra coisa
+  const params = new URLSearchParams(location.search);
+  const submittedPin = params.get('auth') || '';
+
+  if (submittedPin) {
+    // Limpa a URL (remove ?auth=... sem recarregar)
+    const cleanUrl = location.pathname;
+    history.replaceState(null, '', cleanUrl);
+
+    if (submittedPin === CORRECT_PIN) {
+      // Login correto → salva sessão e esconde login imediatamente
+      try { sessionStorage.setItem('finapp_auth', '1'); } catch(e) {}
+      document.getElementById('login-screen').style.display = 'none';
+      // Nada mais a fazer — o form já foi submetido e o navegador JÁ ofereceu salvar
+    } else {
+      // Senha errada → mostra tela de login com erro
+      showLoginError();
+    }
+    return; // sai do IIFE — init() não precisa rodar
+  }
+
+  // ── 2. Sem ?auth na URL → abre normalmente ───────────────────────────────
+  //    Verifica sessão ativa
+  try {
+    if (sessionStorage.getItem('finapp_auth') === '1') {
+      document.getElementById('login-screen').style.display = 'none';
+      return;
+    }
+  } catch(e) {}
+
+  // ── 3. Mostra tela de login ───────────────────────────────────────────────
   let currentPin = '';
   let locked = false;
 
-  /* ── Sessão (8h) ── */
-  function sessionValid() {
-    try {
-      const s = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
-      return s && (Date.now() - s.ts) < 8 * 60 * 60 * 1000;
-    } catch(e) { return false; }
-  }
-
-  function saveSession() {
-    try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ts: Date.now() })); } catch(e) {}
-  }
-
-  /* ── Pontos visuais ── */
   function updateDots(pin) {
     for (let i = 0; i < PIN_LENGTH; i++) {
       const d = document.getElementById('dot' + i);
@@ -3817,137 +3822,69 @@ async function gsTestSave() {
     }
   }
 
-  function errorDots() {
+  function showLoginError() {
+    locked = true;
     for (let i = 0; i < PIN_LENGTH; i++) {
       const d = document.getElementById('dot' + i);
       if (d) { d.classList.remove('filled'); d.classList.add('error'); }
     }
+    const err = document.getElementById('login-error');
+    if (err) err.classList.add('show');
+    setTimeout(() => {
+      currentPin = '';
+      updateDots('');
+      locked = false;
+      if (err) err.classList.remove('show');
+    }, 1400);
+  }
+
+  // Verifica se veio de um autofill biométrico (campo preenchido antes do submit manual)
+  function watchAutofill() {
     const inp = document.getElementById('login-pw-input');
-    if (inp) { inp.classList.add('error'); setTimeout(() => inp.classList.remove('error'), 600); }
+    if (!inp) return;
+    setInterval(() => {
+      if (locked || !inp.value) return;
+      const val = inp.value.replace(/\D/g, '');
+      if (val.length === PIN_LENGTH && val !== currentPin) {
+        currentPin = val;
+        updateDots(val);
+        // Submete o form → navegador registra o login
+        setTimeout(() => document.getElementById('login-form').submit(), 80);
+      }
+    }, 150);
   }
 
-  /* ── Sincroniza pin com o input oculto ── */
-  function syncInput(pin) {
-    const inp = document.getElementById('login-pw-input');
-    if (inp && inp.value !== pin) inp.value = pin;
-    updateDots(pin);
-  }
-
-  /* ── Desbloqueia ── */
-  function unlockApp() {
-    saveSession();
-    const screen = document.getElementById('login-screen');
-    screen.classList.add('hiding');
-    setTimeout(() => screen.style.display = 'none', 380);
-  }
-
-  /* ── Verifica PIN ── */
-  function checkPin(pin) {
-    if (pin === CORRECT_PIN) {
-      unlockApp();
-    } else {
-      locked = true;
-      errorDots();
-      const err = document.getElementById('login-error');
-      if (err) err.classList.add('show');
-      setTimeout(() => {
-        currentPin = '';
-        syncInput('');
-        locked = false;
-        if (err) err.classList.remove('show');
-      }, 1200);
-    }
-  }
-
-  /* ── Teclado numérico visual ── */
   window.loginPressNum = function(n) {
     if (locked || currentPin.length >= PIN_LENGTH) return;
     currentPin += n;
-    syncInput(currentPin);
-    if (currentPin.length === PIN_LENGTH) setTimeout(() => checkPin(currentPin), 100);
+    // Sincroniza com o input oculto (para o form capturar na hora do submit)
+    const inp = document.getElementById('login-pw-input');
+    if (inp) inp.value = currentPin;
+    updateDots(currentPin);
+    // Com 6 dígitos, submete automaticamente
+    if (currentPin.length === PIN_LENGTH) {
+      setTimeout(() => document.getElementById('login-form').submit(), 120);
+    }
   };
 
   window.loginDel = function() {
     if (locked) return;
     currentPin = currentPin.slice(0, -1);
-    syncInput(currentPin);
-  };
-
-  /* ── Quando o navegador/biometria preenche o campo automaticamente ── */
-  window.loginInputChange = function(val) {
-    if (locked) return;
-    // Aceita só dígitos
-    const digits = val.replace(/\D/g, '').slice(0, PIN_LENGTH);
-    currentPin = digits;
-    updateDots(digits);
-    if (digits.length === PIN_LENGTH) setTimeout(() => checkPin(digits), 80);
-  };
-
-  /* ── Submit do form (botão "Entrar" ou Enter do teclado) ── */
-  window.loginSubmit = function(e) {
-    e.preventDefault();
     const inp = document.getElementById('login-pw-input');
-    const val = (inp ? inp.value : currentPin).replace(/\D/g, '');
-    if (!val) return;
-    currentPin = val;
-    syncInput(val);
-    checkPin(val);
+    if (inp) inp.value = currentPin;
+    updateDots(currentPin);
   };
 
-  /* ── Teclado físico ── */
+  // Teclado físico
   document.addEventListener('keydown', function(e) {
     const screen = document.getElementById('login-screen');
     if (!screen || screen.style.display === 'none') return;
     if (e.key >= '0' && e.key <= '9') loginPressNum(e.key);
     if (e.key === 'Backspace') loginDel();
-    if (e.key === 'Enter') {
-      if (currentPin.length === PIN_LENGTH) checkPin(currentPin);
-    }
   });
 
-  /* ── Detecta preenchimento automático (autofill) via polling ──
-     Alguns navegadores não disparam "input" ao fazer autofill biométrico */
-  let autofillTimer = null;
-  function watchAutofill() {
-    const inp = document.getElementById('login-pw-input');
-    if (!inp) return;
-    autofillTimer = setInterval(() => {
-      if (locked) return;
-      const val = inp.value.replace(/\D/g, '');
-      if (val && val !== currentPin) {
-        clearInterval(autofillTimer);
-        window.loginInputChange(val);
-      }
-    }, 200);
-  }
+  watchAutofill();
 
-  /* ── Init ── */
-  function init() {
-    if (sessionValid()) {
-      const screen = document.getElementById('login-screen');
-      if (screen) screen.style.display = 'none';
-      return;
-    }
-    // Mostra o input de senha (fica oculto no CSS por padrão para não aparecer feio antes do JS)
-    const inp = document.getElementById('login-pw-input');
-    if (inp) {
-      // Mantém escondido do usuário mas ativo para o navegador
-      inp.style.display = 'block';
-      inp.style.position = 'absolute';
-      inp.style.opacity = '0';
-      inp.style.pointerEvents = 'none';
-      inp.style.width = '1px';
-      inp.style.height = '1px';
-      inp.style.overflow = 'hidden';
-    }
-    watchAutofill();
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
 })();
 </script>
 <!-- ════════════════════════════════════════════ -->

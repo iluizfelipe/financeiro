@@ -1387,7 +1387,6 @@
     align-items: center;
     justify-content: center;
     flex-direction: column;
-    gap: 0;
     transition: opacity 0.35s ease, transform 0.35s ease;
   }
 
@@ -1408,7 +1407,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0;
   }
 
   .login-logo {
@@ -1434,42 +1432,93 @@
     font-size: 13px;
     color: var(--text3);
     text-align: center;
-    margin-bottom: 28px;
+    margin-bottom: 26px;
+  }
+
+  /* Campo de senha invisível — captura o preenchimento do navegador/biometria */
+  .login-pw-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 240px;
+    margin-bottom: 20px;
+  }
+
+  /* O input real: fica visível mas estilizado como "seguro" */
+  #login-pw-input {
+    width: 100%;
+    padding: 12px 44px 12px 16px;
+    font-size: 22px;
+    letter-spacing: 6px;
+    border: 1.5px solid var(--border2);
+    border-radius: 14px;
+    background: var(--surface2);
+    color: var(--text);
+    outline: none;
+    font-family: inherit;
+    text-align: center;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    -webkit-text-security: disc;
+    /* Garante que o navegador ofereça salvar/autocompletar */
+    autocomplete: current-password;
+  }
+
+  #login-pw-input:focus {
+    border-color: var(--blue);
+    box-shadow: 0 0 0 3px rgba(24,95,165,0.12);
+  }
+
+  #login-pw-input.error {
+    border-color: var(--red);
+    box-shadow: 0 0 0 3px rgba(216,90,48,0.12);
+    animation: shake-input 0.4s ease;
+  }
+
+  @keyframes shake-input {
+    0%,100% { transform: translateX(0); }
+    20%      { transform: translateX(-6px); }
+    40%      { transform: translateX(6px); }
+    60%      { transform: translateX(-6px); }
+    80%      { transform: translateX(6px); }
+  }
+
+  .login-pw-eye {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text3);
+    cursor: pointer;
+    font-size: 18px;
+    padding: 4px;
+    line-height: 1;
   }
 
   .login-pin-dots {
     display: flex;
     gap: 10px;
-    margin-bottom: 22px;
+    margin-bottom: 20px;
     justify-content: center;
   }
 
   .pin-dot {
-    width: 14px; height: 14px;
+    width: 13px; height: 13px;
     border-radius: 50%;
     background: var(--border);
     border: 2px solid var(--border2);
-    transition: background 0.18s, border-color 0.18s, transform 0.18s;
+    transition: background 0.15s, border-color 0.15s, transform 0.15s;
   }
 
   .pin-dot.filled {
     background: var(--blue);
     border-color: var(--blue);
-    transform: scale(1.15);
+    transform: scale(1.2);
   }
 
   .pin-dot.error {
     background: var(--red);
     border-color: var(--red);
-    animation: shake-dot 0.4s ease;
-  }
-
-  @keyframes shake-dot {
-    0%,100% { transform: translateX(0); }
-    20%      { transform: translateX(-4px); }
-    40%      { transform: translateX(4px); }
-    60%      { transform: translateX(-4px); }
-    80%      { transform: translateX(4px); }
   }
 
   .login-numpad {
@@ -1493,7 +1542,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: background 0.12s, transform 0.08s, border-color 0.12s;
+    transition: background 0.1s, transform 0.08s, border-color 0.1s;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     gap: 1px;
@@ -1507,53 +1556,46 @@
     line-height: 1;
   }
 
-  .numpad-btn:active, .numpad-btn.pressed {
+  .numpad-btn:active {
     background: var(--blue-bg);
     border-color: #b5d4f4;
-    transform: scale(0.93);
+    transform: scale(0.91);
     color: var(--blue-text);
   }
 
   .numpad-btn.del-btn-num {
     background: none;
-    border: none;
+    border: 1px solid transparent;
     font-size: 20px;
     color: var(--text2);
   }
 
   .numpad-btn.del-btn-num:active {
     background: var(--red-bg);
-    border: 1px solid #f3c9bb;
+    border-color: #f3c9bb;
     color: var(--red);
   }
 
-  .numpad-empty {
-    height: 56px;
-    background: none;
-    border: none;
-  }
+  .numpad-empty { height: 56px; }
 
-  .login-bio-btn {
-    margin-top: 18px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: none;
+  .login-submit-btn {
+    margin-top: 16px;
+    width: 100%;
+    max-width: 240px;
+    padding: 13px;
+    background: var(--blue);
+    color: #fff;
     border: none;
-    color: var(--blue);
-    font-size: 13px;
-    font-weight: 500;
+    border-radius: 14px;
+    font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
-    padding: 8px 14px;
-    border-radius: 10px;
-    transition: background 0.12s;
     font-family: inherit;
+    transition: background 0.12s, transform 0.08s;
   }
 
-  .login-bio-btn:hover { background: var(--blue-bg); }
-  .login-bio-btn i { font-size: 20px; }
-
-  .login-bio-btn.hidden { display: none; }
+  .login-submit-btn:hover { background: var(--blue-text); }
+  .login-submit-btn:active { transform: scale(0.97); }
 
   .login-error-msg {
     font-size: 12px;
@@ -1564,7 +1606,6 @@
     margin-top: 14px;
     text-align: center;
     display: none;
-    animation: fadein 0.2s ease;
   }
 
   .login-error-msg.show { display: block; }
@@ -1581,34 +1622,64 @@
     <div class="login-title">Financeiro Família</div>
     <div class="login-sub">Digite sua senha para entrar</div>
 
-    <div class="login-pin-dots" id="pin-dots">
-      <div class="pin-dot" id="dot0"></div>
-      <div class="pin-dot" id="dot1"></div>
-      <div class="pin-dot" id="dot2"></div>
-      <div class="pin-dot" id="dot3"></div>
-      <div class="pin-dot" id="dot4"></div>
-      <div class="pin-dot" id="dot5"></div>
-    </div>
+    <!--
+      Form real com username + password → navegador/Safari oferece salvar
+      e nas próximas vezes usa Face ID / Touch ID / biometria automaticamente
+    -->
+    <form id="login-form" autocomplete="on" onsubmit="loginSubmit(event)" style="width:100%;display:flex;flex-direction:column;align-items:center;gap:0;">
 
-    <div class="login-numpad">
-      <button class="numpad-btn" onclick="loginPressNum('1')">1</button>
-      <button class="numpad-btn" onclick="loginPressNum('2')">2<span class="num-sub">ABC</span></button>
-      <button class="numpad-btn" onclick="loginPressNum('3')">3<span class="num-sub">DEF</span></button>
-      <button class="numpad-btn" onclick="loginPressNum('4')">4<span class="num-sub">GHI</span></button>
-      <button class="numpad-btn" onclick="loginPressNum('5')">5<span class="num-sub">JKL</span></button>
-      <button class="numpad-btn" onclick="loginPressNum('6')">6<span class="num-sub">MNO</span></button>
-      <button class="numpad-btn" onclick="loginPressNum('7')">7<span class="num-sub">PQRS</span></button>
-      <button class="numpad-btn" onclick="loginPressNum('8')">8<span class="num-sub">TUV</span></button>
-      <button class="numpad-btn" onclick="loginPressNum('9')">9<span class="num-sub">WXYZ</span></button>
-      <div class="numpad-empty"></div>
-      <button class="numpad-btn" onclick="loginPressNum('0')">0</button>
-      <button class="numpad-btn del-btn-num" onclick="loginDel()"><i class="ti ti-backspace"></i></button>
-    </div>
+      <!-- Username oculto: necessário para o gerenciador de senhas associar -->
+      <input type="text" name="username" autocomplete="username"
+             value="familia" style="display:none;" readonly aria-hidden="true">
 
-    <button class="login-bio-btn hidden" id="bio-btn" onclick="loginBiometric()">
-      <i class="ti ti-fingerprint" id="bio-icon"></i>
-      <span id="bio-label">Usar biometria</span>
-    </button>
+      <!-- Campo de senha visível e estilizado -->
+      <div class="login-pw-wrap">
+        <input
+          type="password"
+          id="login-pw-input"
+          name="password"
+          autocomplete="current-password"
+          placeholder="••••••"
+          maxlength="6"
+          inputmode="numeric"
+          pattern="[0-9]*"
+          oninput="loginInputChange(this.value)"
+          style="display:none;"
+        >
+      </div>
+
+      <!-- Pontos visuais de progresso -->
+      <div class="login-pin-dots" id="pin-dots">
+        <div class="pin-dot" id="dot0"></div>
+        <div class="pin-dot" id="dot1"></div>
+        <div class="pin-dot" id="dot2"></div>
+        <div class="pin-dot" id="dot3"></div>
+        <div class="pin-dot" id="dot4"></div>
+        <div class="pin-dot" id="dot5"></div>
+      </div>
+
+      <!-- Teclado numérico visual -->
+      <div class="login-numpad">
+        <button type="button" class="numpad-btn" onclick="loginPressNum('1')">1</button>
+        <button type="button" class="numpad-btn" onclick="loginPressNum('2')">2<span class="num-sub">ABC</span></button>
+        <button type="button" class="numpad-btn" onclick="loginPressNum('3')">3<span class="num-sub">DEF</span></button>
+        <button type="button" class="numpad-btn" onclick="loginPressNum('4')">4<span class="num-sub">GHI</span></button>
+        <button type="button" class="numpad-btn" onclick="loginPressNum('5')">5<span class="num-sub">JKL</span></button>
+        <button type="button" class="numpad-btn" onclick="loginPressNum('6')">6<span class="num-sub">MNO</span></button>
+        <button type="button" class="numpad-btn" onclick="loginPressNum('7')">7<span class="num-sub">PQRS</span></button>
+        <button type="button" class="numpad-btn" onclick="loginPressNum('8')">8<span class="num-sub">TUV</span></button>
+        <button type="button" class="numpad-btn" onclick="loginPressNum('9')">9<span class="num-sub">WXYZ</span></button>
+        <div class="numpad-empty"></div>
+        <button type="button" class="numpad-btn" onclick="loginPressNum('0')">0</button>
+        <button type="button" class="numpad-btn del-btn-num" onclick="loginDel()"><i class="ti ti-backspace"></i></button>
+      </div>
+
+      <!-- Botão submit oculto — acionado via JS para disparar o "salvar senha" do navegador -->
+      <button type="submit" id="login-submit-btn" class="login-submit-btn" style="margin-top:16px;width:100%;max-width:240px;">
+        Entrar
+      </button>
+
+    </form>
 
     <div class="login-error-msg" id="login-error">Senha incorreta. Tente novamente.</div>
   </div>
@@ -3720,17 +3791,15 @@ async function gsTestSave() {
   const CORRECT_PIN = '130721';
   const PIN_LENGTH  = 6;
   const SESSION_KEY = 'finapp_session';
-  const BIO_KEY     = 'finapp_bio_enabled';
 
   let currentPin = '';
   let locked = false;
 
-  /* ── Verifica se já tem sessão ativa (válida por 8h) ── */
+  /* ── Sessão (8h) ── */
   function sessionValid() {
     try {
       const s = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
-      if (!s) return false;
-      return (Date.now() - s.ts) < 8 * 60 * 60 * 1000;
+      return s && (Date.now() - s.ts) < 8 * 60 * 60 * 1000;
     } catch(e) { return false; }
   }
 
@@ -3738,126 +3807,92 @@ async function gsTestSave() {
     try { sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ts: Date.now() })); } catch(e) {}
   }
 
-  /* ── Biometria ── */
-  function bioAvailable() {
-    return !!(window.PublicKeyCredential || navigator.credentials);
-  }
-
-  function bioEnabled() {
-    try { return localStorage.getItem(BIO_KEY) === '1'; } catch(e) { return false; }
-  }
-
-  function saveBioEnabled() {
-    try { localStorage.setItem(BIO_KEY, '1'); } catch(e) {}
-  }
-
-  function showBioBtn() {
-    const btn = document.getElementById('bio-btn');
-    if (!btn) return;
-    const ua = navigator.userAgent;
-    const isIOS = /iPhone|iPad/.test(ua);
-    const icon = document.getElementById('bio-icon');
-    const label = document.getElementById('bio-label');
-    if (isIOS) {
-      icon.className = 'ti ti-face-id';
-      label.textContent = 'Usar Face ID';
-    } else {
-      icon.className = 'ti ti-fingerprint';
-      label.textContent = 'Usar biometria / digital';
-    }
-    btn.classList.remove('hidden');
-  }
-
-  /* ── Tentativa de login biométrico via WebAuthn ── */
-  async function loginBiometric() {
-    if (locked) return;
-    if (window.PublicKeyCredential) {
-      try {
-        const challenge = new Uint8Array(32);
-        crypto.getRandomValues(challenge);
-        await navigator.credentials.get({
-          publicKey: {
-            challenge,
-            timeout: 60000,
-            userVerification: 'required',
-            rpId: location.hostname || 'localhost',
-          }
-        });
-        saveSession();
-        unlockApp();
-        return;
-      } catch(e) {
-        if (e.name === 'NotAllowedError') return;
-        // Outros erros: tenta fallback abaixo
-      }
-    }
-    // Fallback simples: se bio foi habilitada antes, libera
-    if (bioEnabled()) {
-      saveSession();
-      unlockApp();
-    }
-  }
-
-  /* ── UI dos pontos ── */
-  function updateDots() {
+  /* ── Pontos visuais ── */
+  function updateDots(pin) {
     for (let i = 0; i < PIN_LENGTH; i++) {
-      const dot = document.getElementById('dot' + i);
-      if (!dot) continue;
-      dot.classList.remove('filled', 'error');
-      if (i < currentPin.length) dot.classList.add('filled');
+      const d = document.getElementById('dot' + i);
+      if (!d) continue;
+      d.classList.toggle('filled', i < pin.length);
+      d.classList.remove('error');
     }
   }
 
-  function shakeDotsError() {
+  function errorDots() {
     for (let i = 0; i < PIN_LENGTH; i++) {
-      const dot = document.getElementById('dot' + i);
-      if (dot) { dot.classList.remove('filled'); dot.classList.add('error'); }
+      const d = document.getElementById('dot' + i);
+      if (d) { d.classList.remove('filled'); d.classList.add('error'); }
     }
+    const inp = document.getElementById('login-pw-input');
+    if (inp) { inp.classList.add('error'); setTimeout(() => inp.classList.remove('error'), 600); }
   }
 
-  /* ── Acesso liberado ── */
+  /* ── Sincroniza pin com o input oculto ── */
+  function syncInput(pin) {
+    const inp = document.getElementById('login-pw-input');
+    if (inp && inp.value !== pin) inp.value = pin;
+    updateDots(pin);
+  }
+
+  /* ── Desbloqueia ── */
   function unlockApp() {
+    saveSession();
     const screen = document.getElementById('login-screen');
-    if (!screen) return;
     screen.classList.add('hiding');
-    setTimeout(() => { screen.style.display = 'none'; }, 380);
+    setTimeout(() => screen.style.display = 'none', 380);
   }
 
   /* ── Verifica PIN ── */
-  function checkPin() {
-    if (currentPin === CORRECT_PIN) {
-      saveSession();
-      if (!bioEnabled() && bioAvailable()) saveBioEnabled();
+  function checkPin(pin) {
+    if (pin === CORRECT_PIN) {
       unlockApp();
     } else {
       locked = true;
-      shakeDotsError();
-      const errEl = document.getElementById('login-error');
-      if (errEl) errEl.classList.add('show');
+      errorDots();
+      const err = document.getElementById('login-error');
+      if (err) err.classList.add('show');
       setTimeout(() => {
         currentPin = '';
-        updateDots();
+        syncInput('');
         locked = false;
-        if (errEl) errEl.classList.remove('show');
+        if (err) err.classList.remove('show');
       }, 1200);
     }
   }
 
-  /* ── Handlers globais ── */
+  /* ── Teclado numérico visual ── */
   window.loginPressNum = function(n) {
     if (locked || currentPin.length >= PIN_LENGTH) return;
     currentPin += n;
-    updateDots();
-    if (currentPin.length === PIN_LENGTH) setTimeout(checkPin, 120);
+    syncInput(currentPin);
+    if (currentPin.length === PIN_LENGTH) setTimeout(() => checkPin(currentPin), 100);
   };
 
   window.loginDel = function() {
     if (locked) return;
     currentPin = currentPin.slice(0, -1);
-    updateDots();
+    syncInput(currentPin);
   };
 
-  window.loginBiometric = loginBiometric;
+  /* ── Quando o navegador/biometria preenche o campo automaticamente ── */
+  window.loginInputChange = function(val) {
+    if (locked) return;
+    // Aceita só dígitos
+    const digits = val.replace(/\D/g, '').slice(0, PIN_LENGTH);
+    currentPin = digits;
+    updateDots(digits);
+    if (digits.length === PIN_LENGTH) setTimeout(() => checkPin(digits), 80);
+  };
+
+  /* ── Submit do form (botão "Entrar" ou Enter do teclado) ── */
+  window.loginSubmit = function(e) {
+    e.preventDefault();
+    const inp = document.getElementById('login-pw-input');
+    const val = (inp ? inp.value : currentPin).replace(/\D/g, '');
+    if (!val) return;
+    currentPin = val;
+    syncInput(val);
+    checkPin(val);
+  };
 
   /* ── Teclado físico ── */
   document.addEventListener('keydown', function(e) {
@@ -3865,19 +3900,47 @@ async function gsTestSave() {
     if (!screen || screen.style.display === 'none') return;
     if (e.key >= '0' && e.key <= '9') loginPressNum(e.key);
     if (e.key === 'Backspace') loginDel();
+    if (e.key === 'Enter') {
+      if (currentPin.length === PIN_LENGTH) checkPin(currentPin);
+    }
   });
 
-  /* ── Inicialização ── */
+  /* ── Detecta preenchimento automático (autofill) via polling ──
+     Alguns navegadores não disparam "input" ao fazer autofill biométrico */
+  let autofillTimer = null;
+  function watchAutofill() {
+    const inp = document.getElementById('login-pw-input');
+    if (!inp) return;
+    autofillTimer = setInterval(() => {
+      if (locked) return;
+      const val = inp.value.replace(/\D/g, '');
+      if (val && val !== currentPin) {
+        clearInterval(autofillTimer);
+        window.loginInputChange(val);
+      }
+    }, 200);
+  }
+
+  /* ── Init ── */
   function init() {
     if (sessionValid()) {
       const screen = document.getElementById('login-screen');
       if (screen) screen.style.display = 'none';
       return;
     }
-    if (bioEnabled() && bioAvailable()) {
-      showBioBtn();
-      setTimeout(loginBiometric, 500);
+    // Mostra o input de senha (fica oculto no CSS por padrão para não aparecer feio antes do JS)
+    const inp = document.getElementById('login-pw-input');
+    if (inp) {
+      // Mantém escondido do usuário mas ativo para o navegador
+      inp.style.display = 'block';
+      inp.style.position = 'absolute';
+      inp.style.opacity = '0';
+      inp.style.pointerEvents = 'none';
+      inp.style.width = '1px';
+      inp.style.height = '1px';
+      inp.style.overflow = 'hidden';
     }
+    watchAutofill();
   }
 
   if (document.readyState === 'loading') {

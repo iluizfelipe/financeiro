@@ -1435,20 +1435,19 @@
     margin-bottom: 26px;
   }
 
-  /* Campo de senha invisível — captura o preenchimento do navegador/biometria */
+  /* Campo de senha visível — o Safari usa ele para oferecer Face ID */
   .login-pw-wrap {
     position: relative;
     width: 100%;
-    max-width: 240px;
+    max-width: 260px;
     margin-bottom: 20px;
   }
 
-  /* O input real: fica visível mas estilizado como "seguro" */
   #login-pw-input {
     width: 100%;
-    padding: 12px 44px 12px 16px;
-    font-size: 22px;
-    letter-spacing: 6px;
+    padding: 13px 42px 13px 16px;
+    font-size: 20px;
+    letter-spacing: 8px;
     border: 1.5px solid var(--border2);
     border-radius: 14px;
     background: var(--surface2);
@@ -1457,19 +1456,25 @@
     font-family: inherit;
     text-align: center;
     transition: border-color 0.15s, box-shadow 0.15s;
+    /* Mostra bullets estilo senha */
     -webkit-text-security: disc;
-    /* Garante que o navegador ofereça salvar/autocompletar */
-    autocomplete: current-password;
+  }
+
+  /* Fallback para Firefox que não suporta -webkit-text-security */
+  #login-pw-input[type="password"] {
+    font-size: 16px;
+    letter-spacing: 6px;
   }
 
   #login-pw-input:focus {
     border-color: var(--blue);
-    box-shadow: 0 0 0 3px rgba(24,95,165,0.12);
+    box-shadow: 0 0 0 3px rgba(24,95,165,0.13);
+    background: var(--surface);
   }
 
   #login-pw-input.error {
     border-color: var(--red);
-    box-shadow: 0 0 0 3px rgba(216,90,48,0.12);
+    box-shadow: 0 0 0 3px rgba(216,90,48,0.13);
     animation: shake-input 0.4s ease;
   }
 
@@ -1481,18 +1486,14 @@
     80%      { transform: translateX(6px); }
   }
 
-  .login-pw-eye {
+  .login-pw-icon {
     position: absolute;
-    right: 12px;
+    right: 13px;
     top: 50%;
     transform: translateY(-50%);
-    background: none;
-    border: none;
     color: var(--text3);
-    cursor: pointer;
-    font-size: 18px;
-    padding: 4px;
-    line-height: 1;
+    font-size: 17px;
+    pointer-events: none;
   }
 
   .login-pin-dots {
@@ -1622,22 +1623,29 @@
     <div class="login-title">Financeiro Família</div>
     <div class="login-sub">Digite sua senha para entrar</div>
 
-    <!--
-      action="" + method="get" → recarrega a mesma página com ?auth=ok
-      Isso é o que faz Chrome/Safari reconhecerem como login bem-sucedido
-      e oferecerem salvar + Face ID nas próximas visitas
-    -->
     <form id="login-form" action="" method="get" autocomplete="on"
-          style="width:100%;display:flex;flex-direction:column;align-items:center;">
+          style="width:100%;display:flex;flex-direction:column;align-items:center;gap:0;">
 
-      <!-- username fixo oculto: obrigatório para gerenciador de senhas associar -->
-      <input type="text"     name="username"  autocomplete="username"         value="familia" style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;" readonly tabindex="-1">
-      <!-- campo de senha: oculto visualmente, ativo para autofill/biometria   -->
-      <input type="password" name="auth"      autocomplete="current-password" id="login-pw-input"
-             maxlength="6" inputmode="numeric" tabindex="-1"
-             style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;">
+      <!-- username fixo: obrigatório para gerenciador de senhas -->
+      <input type="text" name="username" autocomplete="username" value="familia"
+             style="position:absolute;opacity:0;width:1px;height:1px;pointer-events:none;" readonly tabindex="-1">
 
-      <!-- Pontos visuais -->
+      <!-- Campo de senha VISÍVEL — Safari usa ele para oferecer Face ID -->
+      <div class="login-pw-wrap">
+        <input
+          type="password"
+          name="auth"
+          id="login-pw-input"
+          autocomplete="current-password"
+          placeholder="Senha"
+          maxlength="6"
+          inputmode="numeric"
+          oninput="loginOnInput(this.value)"
+        >
+        <i class="ti ti-lock login-pw-icon"></i>
+      </div>
+
+      <!-- Pontos visuais (atualizam junto com o campo) -->
       <div class="login-pin-dots" id="pin-dots">
         <div class="pin-dot" id="dot0"></div>
         <div class="pin-dot" id="dot1"></div>
@@ -1647,7 +1655,7 @@
         <div class="pin-dot" id="dot5"></div>
       </div>
 
-      <!-- Teclado numérico visual -->
+      <!-- Teclado numérico visual (foca o campo antes de digitar) -->
       <div class="login-numpad">
         <button type="button" class="numpad-btn" onclick="loginPressNum('1')">1</button>
         <button type="button" class="numpad-btn" onclick="loginPressNum('2')">2<span class="num-sub">ABC</span></button>
@@ -1663,8 +1671,7 @@
         <button type="button" class="numpad-btn del-btn-num" onclick="loginDel()"><i class="ti ti-backspace"></i></button>
       </div>
 
-      <!-- Submit real — o navegador intercepta aqui e oferece salvar -->
-      <button type="submit" id="login-submit-btn" class="login-submit-btn">Entrar</button>
+      <button type="submit" class="login-submit-btn">Entrar</button>
 
     </form>
 
@@ -3778,30 +3785,23 @@ async function gsTestSave() {
   const CORRECT_PIN = '130721';
   const PIN_LENGTH  = 6;
 
-  // ── 1. Se chegou com ?auth=ok na URL → senha foi submetida pelo form ──────
-  //    Verifica aqui, antes de qualquer outra coisa
+  // ── 1. Chegou com ?auth=... → form foi submetido (manual ou autofill) ─────
   const params = new URLSearchParams(location.search);
-  const submittedPin = params.get('auth') || '';
+  const submitted = params.get('auth') || '';
 
-  if (submittedPin) {
-    // Limpa a URL (remove ?auth=... sem recarregar)
-    const cleanUrl = location.pathname;
-    history.replaceState(null, '', cleanUrl);
-
-    if (submittedPin === CORRECT_PIN) {
-      // Login correto → salva sessão e esconde login imediatamente
+  if (submitted) {
+    history.replaceState(null, '', location.pathname);
+    if (submitted === CORRECT_PIN) {
       try { sessionStorage.setItem('finapp_auth', '1'); } catch(e) {}
       document.getElementById('login-screen').style.display = 'none';
-      // Nada mais a fazer — o form já foi submetido e o navegador JÁ ofereceu salvar
     } else {
-      // Senha errada → mostra tela de login com erro
-      showLoginError();
+      // Senha errada: mostra tela com erro
+      startLogin(true);
     }
-    return; // sai do IIFE — init() não precisa rodar
+    return;
   }
 
-  // ── 2. Sem ?auth na URL → abre normalmente ───────────────────────────────
-  //    Verifica sessão ativa
+  // ── 2. Sessão ativa → entra direto ──────────────────────────────────────
   try {
     if (sessionStorage.getItem('finapp_auth') === '1') {
       document.getElementById('login-screen').style.display = 'none';
@@ -3809,81 +3809,98 @@ async function gsTestSave() {
     }
   } catch(e) {}
 
-  // ── 3. Mostra tela de login ───────────────────────────────────────────────
-  let currentPin = '';
-  let locked = false;
+  // ── 3. Mostra login ──────────────────────────────────────────────────────
+  startLogin(false);
 
-  function updateDots(pin) {
-    for (let i = 0; i < PIN_LENGTH; i++) {
-      const d = document.getElementById('dot' + i);
-      if (!d) continue;
-      d.classList.toggle('filled', i < pin.length);
-      d.classList.remove('error');
-    }
-  }
-
-  function showLoginError() {
-    locked = true;
-    for (let i = 0; i < PIN_LENGTH; i++) {
-      const d = document.getElementById('dot' + i);
-      if (d) { d.classList.remove('filled'); d.classList.add('error'); }
-    }
-    const err = document.getElementById('login-error');
-    if (err) err.classList.add('show');
-    setTimeout(() => {
-      currentPin = '';
-      updateDots('');
-      locked = false;
-      if (err) err.classList.remove('show');
-    }, 1400);
-  }
-
-  // Verifica se veio de um autofill biométrico (campo preenchido antes do submit manual)
-  function watchAutofill() {
+  function startLogin(withError) {
+    let currentPin = '';
+    let locked = false;
     const inp = document.getElementById('login-pw-input');
-    if (!inp) return;
+
+    function updateDots(len) {
+      for (let i = 0; i < PIN_LENGTH; i++) {
+        const d = document.getElementById('dot' + i);
+        if (!d) continue;
+        d.classList.toggle('filled', i < len);
+        d.classList.remove('error');
+      }
+    }
+
+    function triggerError() {
+      locked = true;
+      for (let i = 0; i < PIN_LENGTH; i++) {
+        const d = document.getElementById('dot' + i);
+        if (d) { d.classList.remove('filled'); d.classList.add('error'); }
+      }
+      if (inp) inp.classList.add('error');
+      const err = document.getElementById('login-error');
+      if (err) err.classList.add('show');
+      setTimeout(() => {
+        currentPin = '';
+        if (inp) { inp.value = ''; inp.classList.remove('error'); }
+        updateDots(0);
+        locked = false;
+        if (err) err.classList.remove('show');
+        // Re-foca o campo para o Safari voltar a mostrar o ícone de autofill
+        if (inp) inp.focus();
+      }, 1400);
+    }
+
+    function doSubmit() {
+      document.getElementById('login-form').submit();
+    }
+
+    // Quando o usuário digita diretamente no campo (teclado do dispositivo ou autofill)
+    window.loginOnInput = function(val) {
+      if (locked) return;
+      const digits = val.replace(/\D/g, '').slice(0, PIN_LENGTH);
+      currentPin = digits;
+      if (inp) inp.value = digits;
+      updateDots(digits.length);
+      if (digits.length === PIN_LENGTH) setTimeout(doSubmit, 100);
+    };
+
+    // Teclado numérico visual
+    window.loginPressNum = function(n) {
+      if (locked || currentPin.length >= PIN_LENGTH) return;
+      currentPin += n;
+      if (inp) inp.value = currentPin;
+      updateDots(currentPin.length);
+      if (currentPin.length === PIN_LENGTH) setTimeout(doSubmit, 120);
+    };
+
+    window.loginDel = function() {
+      if (locked) return;
+      currentPin = currentPin.slice(0, -1);
+      if (inp) inp.value = currentPin;
+      updateDots(currentPin.length);
+    };
+
+    // Teclado físico
+    document.addEventListener('keydown', function(e) {
+      const screen = document.getElementById('login-screen');
+      if (!screen || screen.style.display === 'none') return;
+      if (document.activeElement === inp) return; // já está no input, não intercepta
+      if (e.key >= '0' && e.key <= '9') loginPressNum(e.key);
+      if (e.key === 'Backspace') loginDel();
+    });
+
+    // Polling para autofill biométrico (Safari às vezes não dispara "input")
     setInterval(() => {
-      if (locked || !inp.value) return;
+      if (locked || !inp) return;
       const val = inp.value.replace(/\D/g, '');
       if (val.length === PIN_LENGTH && val !== currentPin) {
         currentPin = val;
-        updateDots(val);
-        // Submete o form → navegador registra o login
-        setTimeout(() => document.getElementById('login-form').submit(), 80);
+        updateDots(PIN_LENGTH);
+        setTimeout(doSubmit, 80);
       }
     }, 150);
+
+    if (withError) triggerError();
+
+    // Foca o campo automaticamente → Safari mostra ícone de Face ID/senhas salvas
+    setTimeout(() => { if (inp) inp.focus(); }, 300);
   }
-
-  window.loginPressNum = function(n) {
-    if (locked || currentPin.length >= PIN_LENGTH) return;
-    currentPin += n;
-    // Sincroniza com o input oculto (para o form capturar na hora do submit)
-    const inp = document.getElementById('login-pw-input');
-    if (inp) inp.value = currentPin;
-    updateDots(currentPin);
-    // Com 6 dígitos, submete automaticamente
-    if (currentPin.length === PIN_LENGTH) {
-      setTimeout(() => document.getElementById('login-form').submit(), 120);
-    }
-  };
-
-  window.loginDel = function() {
-    if (locked) return;
-    currentPin = currentPin.slice(0, -1);
-    const inp = document.getElementById('login-pw-input');
-    if (inp) inp.value = currentPin;
-    updateDots(currentPin);
-  };
-
-  // Teclado físico
-  document.addEventListener('keydown', function(e) {
-    const screen = document.getElementById('login-screen');
-    if (!screen || screen.style.display === 'none') return;
-    if (e.key >= '0' && e.key <= '9') loginPressNum(e.key);
-    if (e.key === 'Backspace') loginDel();
-  });
-
-  watchAutofill();
 
 })();
 </script>

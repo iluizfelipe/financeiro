@@ -626,6 +626,9 @@
   .act-btn.edit:hover  { background: var(--blue-bg); color: var(--blue); }
   .act-btn.del:hover   { background: var(--red-bg);  color: var(--red);  }
 
+  .cat-group-header td { padding: 0 !important; }
+  .cat-group-header + tr td { padding-top: 5px; }
+
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
 
@@ -1832,7 +1835,6 @@
               <thead>
                 <tr>
                   <th>Descrição</th>
-                  <th>Cat.</th>
                   <th>Data</th>
                   <th>Tipo</th>
                   <th class="col-amount">Valor</th>
@@ -2064,6 +2066,10 @@
       <input class="form-input" type="text" id="caixa-f-desc" placeholder="Ex: Pix recebido, Retirada para compras...">
     </div>
     <div class="form-group">
+      <label class="form-label" for="caixa-f-estabelecimento">Estabelecimento / Identificação <span style="color:var(--text3);font-weight:400;">(opcional)</span></label>
+      <input class="form-input" type="text" id="caixa-f-estabelecimento" placeholder="Ex: iFood, Mercado, Farmácia...">
+    </div>
+    <div class="form-group">
       <label class="form-label" for="caixa-f-amount">Valor (R$)</label>
       <input class="form-input" type="number" id="caixa-f-amount" placeholder="0,00" min="0.01" step="0.01">
     </div>
@@ -2208,7 +2214,7 @@
 
     <div class="form-group" id="cat-group">
       <label class="form-label" for="f-cat">Categoria</label>
-      <select class="form-input" id="f-cat">
+      <select class="form-input" id="f-cat" onchange="onCatChange(this.value)">
         <option value="Moradia">Moradia</option>
         <option value="Alimentação">Alimentação</option>
         <option value="Transporte">Transporte</option>
@@ -2216,9 +2222,22 @@
         <option value="Lazer">Lazer</option>
         <option value="Educação">Educação</option>
         <option value="Roupas">Roupas</option>
-        <option value="Cartão">Cartão de Crédito</option>
+        <option value="Mercado">Mercado / Supermercado</option>
+        <option value="Restaurante">Restaurante / Lanchonete</option>
+        <option value="Delivery">Delivery (iFood, etc.)</option>
+        <option value="Streaming">Streaming (Netflix, Spotify…)</option>
+        <option value="Assinatura">Assinaturas e Apps</option>
+        <option value="Cartão Santander">💳 Cartão de Crédito Santander</option>
+        <option value="Cartão Nubank">💳 Cartão de Crédito Nubank</option>
+        <option value="Cartão Itaú">💳 Cartão de Crédito Itaú</option>
+        <option value="Cartão">Cartão de Crédito (outro)</option>
         <option value="Outros">Outros</option>
       </select>
+    </div>
+
+    <div class="form-group" id="estabelecimento-group">
+      <label class="form-label" for="f-estabelecimento">Estabelecimento / Identificação <span style="color:var(--text3);font-weight:400;">(opcional)</span></label>
+      <input class="form-input" type="text" id="f-estabelecimento" placeholder="Ex: iFood, Netflix, Mercado Machado, Apple...">
     </div>
 
     <div class="modal-footer">
@@ -2232,27 +2251,43 @@
 const MONTHS = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
 const CAT_COLORS = {
-  'Moradia':     '#378ADD',
-  'Alimentação': '#1D9E75',
-  'Transporte':  '#EF9F27',
-  'Saúde':       '#D85A30',
-  'Lazer':       '#7F77DD',
-  'Educação':    '#D4537E',
-  'Roupas':      '#5DCAA5',
-  'Outros':      '#888780',
-  'Cartão':      '#C0392B',
+  'Moradia':          '#378ADD',
+  'Alimentação':      '#1D9E75',
+  'Transporte':       '#EF9F27',
+  'Saúde':            '#D85A30',
+  'Lazer':            '#7F77DD',
+  'Educação':         '#D4537E',
+  'Roupas':           '#5DCAA5',
+  'Mercado':          '#2ECC71',
+  'Restaurante':      '#E67E22',
+  'Delivery':         '#E74C3C',
+  'Streaming':        '#8E44AD',
+  'Assinatura':       '#16A085',
+  'Cartão':           '#C0392B',
+  'Cartão Santander': '#B0242B',
+  'Cartão Nubank':    '#820AD1',
+  'Cartão Itaú':      '#FF6600',
+  'Outros':           '#888780',
 };
 
 const CAT_ICONS = {
-  'Moradia': 'ti-home',
-  'Alimentação': 'ti-tools-kitchen-2',
-  'Transporte': 'ti-car',
-  'Saúde': 'ti-heart',
-  'Lazer': 'ti-device-gamepad-2',
-  'Educação': 'ti-school',
-  'Roupas': 'ti-hanger',
-  'Outros': 'ti-package',
-  'Cartão': 'ti-credit-card',
+  'Moradia':          'ti-home',
+  'Alimentação':      'ti-tools-kitchen-2',
+  'Transporte':       'ti-car',
+  'Saúde':            'ti-heart',
+  'Lazer':            'ti-device-gamepad-2',
+  'Educação':         'ti-school',
+  'Roupas':           'ti-hanger',
+  'Mercado':          'ti-shopping-cart',
+  'Restaurante':      'ti-knife',
+  'Delivery':         'ti-bike',
+  'Streaming':        'ti-device-tv',
+  'Assinatura':       'ti-apps',
+  'Outros':           'ti-package',
+  'Cartão':           'ti-credit-card',
+  'Cartão Santander': 'ti-credit-card',
+  'Cartão Nubank':    'ti-credit-card',
+  'Cartão Itaú':      'ti-credit-card',
 };
 
 let now = new Date();
@@ -2446,6 +2481,7 @@ function openCaixaModal(op) {
   document.getElementById('caixa-btn-save').textContent = op === 'entrada' ? 'Confirmar entrada' : 'Confirmar retirada';
   document.getElementById('caixa-f-desc').value = '';
   document.getElementById('caixa-f-amount').value = '';
+  document.getElementById('caixa-f-estabelecimento').value = '';
   const now2 = new Date();
   document.getElementById('caixa-f-date').value = `${now2.getFullYear()}-${String(now2.getMonth()+1).padStart(2,'0')}-${String(now2.getDate()).padStart(2,'0')}`;
   // reset AI tabs
@@ -2480,9 +2516,11 @@ function saveCaixaMov() {
   const desc = document.getElementById('caixa-f-desc').value.trim();
   const amount = parseFloat(document.getElementById('caixa-f-amount').value);
   const date = document.getElementById('caixa-f-date').value;
+  const estabelecimento = (document.getElementById('caixa-f-estabelecimento').value || '').trim();
   if (!desc) { document.getElementById('caixa-f-desc').focus(); return; }
   if (!amount || amount <= 0) { document.getElementById('caixa-f-amount').focus(); return; }
-  addCaixaMov(caixaModalOp, desc, amount, date);
+  const fullDesc = estabelecimento ? `${desc} — ${estabelecimento}` : desc;
+  addCaixaMov(caixaModalOp, fullDesc, amount, date);
   closeCaixaModal();
 }
 
@@ -2607,16 +2645,21 @@ async function processCaixaReceiptFile(file) {
     dz.innerHTML = `<img src="${ev.target.result}" class="receipt-preview" alt="Comprovante">`;
     showStatus('caixa-receipt-status', 'loading', 'Lendo comprovante com IA...');
     try {
-      const prompt = `Você é um assistente de caixa. Analise esta imagem de comprovante e extraia o valor e uma descrição da movimentação.
+      const prompt = `Você é um assistente financeiro. Analise esta imagem de comprovante e extraia informações da movimentação.
 Responda APENAS com JSON válido:
-{"desc": "descrição curta", "amount": 0.00}
+{"desc": "descrição curta", "amount": 0.00, "estabelecimento": "nome do estabelecimento/banco/app ou null", "banco": "Santander ou Nubank ou Itaú ou null"}
 - amount deve ser número positivo com ponto decimal
-- desc deve ser conciso (max 40 chars), ex: "Pix recebido", "Depósito", "Pagamento"`;
+- desc deve ser conciso (max 40 chars), ex: "Pix recebido", "Depósito", "Pagamento"
+- estabelecimento: nome do local/app identificado no comprovante
+- banco: identifique o banco se aparecer no comprovante`;
       const raw = await callGemini(prompt, base64, mt);
       const clean = raw.replace(/\`\`\`json|\`\`\`/g,'').trim();
       const parsed = JSON.parse(clean);
       if (parsed.desc) document.getElementById('caixa-f-desc').value = parsed.desc;
       if (parsed.amount) document.getElementById('caixa-f-amount').value = parsed.amount;
+      if (parsed.estabelecimento && parsed.estabelecimento !== 'null') {
+        document.getElementById('caixa-f-estabelecimento').value = parsed.estabelecimento;
+      }
       showStatus('caixa-receipt-status', 'success', '✓ Dados extraídos! Confira e salve.');
       switchCaixaAiTab('manual');
       setTimeout(() => hideStatus('caixa-receipt-status'), 4000);
@@ -2687,7 +2730,7 @@ function renderPanels() {
   document.getElementById('panel-total-expense').textContent = fmt(totalExp);
   document.getElementById('panel-total-income').textContent  = fmt(totalInc);
 
-  // Expenses table
+  // Expenses table — grouped by category
   const expTbody = document.getElementById('expense-tbody');
   const expEmpty = document.getElementById('expense-empty');
   if (expenses.length === 0) {
@@ -2695,21 +2738,47 @@ function renderPanels() {
     expEmpty.style.display = 'block';
   } else {
     expEmpty.style.display = 'none';
-    expTbody.innerHTML = expenses.map(e => {
-      const dayStr = e.day ? String(e.day).padStart(2,'0') + '/' : '';
-      const dateStr = dayStr + String(e.month+1).padStart(2,'0') + '/' + String(e.year).slice(2);
-      return `<tr data-id="${e.id}">
-        <td class="td-name" title="${e.name}">${e.name}</td>
-        <td class="td-cat" title="${e.cat||''}">${e.cat||'—'}</td>
-        <td class="td-date">${dateStr}</td>
-        <td>${freqBadgeSm(e.freq, e.type)}</td>
-        <td class="col-amount expense">−${fmt(e.amount)}</td>
-        <td class="col-actions">
-          <button class="act-btn edit" onclick="openEditModal('${e.id}')" title="Editar"><i class="ti ti-pencil"></i></button>
-          <button class="act-btn del"  onclick="deleteEntry('${e.id}')"   title="Excluir"><i class="ti ti-trash"></i></button>
+    // Group by category
+    const groups = {};
+    expenses.forEach(e => {
+      const g = e.cat || 'Outros';
+      if (!groups[g]) groups[g] = [];
+      groups[g].push(e);
+    });
+    // Sort groups by total desc
+    const sortedGroups = Object.entries(groups).sort((a,b) =>
+      b[1].reduce((s,e)=>s+e.amount,0) - a[1].reduce((s,e)=>s+e.amount,0)
+    );
+    let html = '';
+    sortedGroups.forEach(([groupName, items]) => {
+      const groupTotal = items.reduce((s,e)=>s+e.amount,0);
+      const catColor = CAT_COLORS[groupName] || '#888780';
+      const catIcon = CAT_ICONS[groupName] || 'ti-package';
+      html += `<tr class="cat-group-header">
+        <td colspan="6" style="padding:6px 10px 4px;background:${catColor}18;border-top:2px solid ${catColor}44;">
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:${catColor};text-transform:uppercase;letter-spacing:0.05em;">
+            <i class="ti ${catIcon}" style="font-size:13px;"></i>
+            ${groupName}
+            <span style="margin-left:auto;font-size:12px;">−${fmt(groupTotal)}</span>
+          </div>
         </td>
       </tr>`;
-    }).join('');
+      items.forEach(e => {
+        const dayStr = e.day ? String(e.day).padStart(2,'0') + '/' : '';
+        const dateStr = dayStr + String(e.month+1).padStart(2,'0') + '/' + String(e.year).slice(2);
+        html += `<tr data-id="${e.id}">
+          <td class="td-name" title="${e.name}">${e.name}</td>
+          <td class="td-date">${dateStr}</td>
+          <td>${freqBadgeSm(e.freq, e.type)}</td>
+          <td class="col-amount expense">−${fmt(e.amount)}</td>
+          <td class="col-actions">
+            <button class="act-btn edit" onclick="openEditModal('${e.id}')" title="Editar"><i class="ti ti-pencil"></i></button>
+            <button class="act-btn del"  onclick="deleteEntry('${e.id}')"   title="Excluir"><i class="ti ti-trash"></i></button>
+          </td>
+        </tr>`;
+      });
+    });
+    expTbody.innerHTML = html;
   }
 
   // Incomes table
@@ -2772,6 +2841,26 @@ function setFilter(f, btn, view) {
 }
 
 function deleteEntry(id) {
+  const entry = entries.find(e => e.id === id);
+  if (entry && entry.type === 'expense' && CARD_FATURA_MAP[entry.cat]) {
+    // Reverte o valor da fatura correspondente
+    const faturaName = CARD_FATURA_MAP[entry.cat];
+    const fatIdx = entries.findIndex(e =>
+      e.name === faturaName &&
+      e.type === 'expense' &&
+      e.month === entry.month &&
+      e.year === entry.year
+    );
+    if (fatIdx !== -1) {
+      const novoValor = parseFloat((entries[fatIdx].amount - entry.amount).toFixed(2));
+      if (novoValor <= 0) {
+        // Remove a fatura se zerar
+        entries = entries.filter(e => !(e.name === faturaName && e.month === entry.month && e.year === entry.year));
+      } else {
+        entries[fatIdx] = { ...entries[fatIdx], amount: novoValor };
+      }
+    }
+  }
   entries = entries.filter(e => e.id !== id);
   persist();
   renderAll();
@@ -2851,9 +2940,47 @@ function updateIphClock() {
 setInterval(updateIphClock, 60000);
 updateIphClock();
 
+function onCatChange(val) {
+  // Nada especial por ora, mas poderíamos mostrar dicas específicas
+}
+
 function setFreq(val) {
   document.getElementById('installment-group').style.display = val === 'installment' ? 'block' : 'none';
 }
+
+
+const CARD_FATURA_MAP = {
+  'Cartão Santander': 'Fatura Santander',
+  'Cartão Nubank':    'Fatura Nubank',
+  'Cartão Itaú':      'Fatura Itaú',
+};
+
+function updateCardFatura(cat, amount, month, year) {
+  const faturaName = CARD_FATURA_MAP[cat];
+  if (!faturaName) return;
+  // Encontra a fatura existente no mesmo mês
+  const idx = entries.findIndex(e =>
+    e.name === faturaName &&
+    e.type === 'expense' &&
+    e.month === month &&
+    e.year === year
+  );
+  if (idx !== -1) {
+    entries[idx] = { ...entries[idx], amount: parseFloat((entries[idx].amount + amount).toFixed(2)) };
+  } else {
+    // Cria fatura se não existir
+    const dayMap = { 'Fatura Santander': 10, 'Fatura Nubank': 15, 'Fatura Itaú': 5 };
+    entries.push({
+      id: 'fat_' + cat.replace(/\s/g,'_') + '_' + month + '_' + year,
+      name: faturaName,
+      amount: parseFloat(amount.toFixed(2)),
+      type: 'expense', freq: 'variable', cat: 'Cartão',
+      month, year, day: dayMap[faturaName] || 10
+    });
+  }
+}
+
+
 
 function setType(t) {
   curType = t;
@@ -2887,6 +3014,7 @@ function openModal() {
   document.getElementById('f-installments').value = '';
   document.getElementById('installment-group').style.display = 'none';
   document.getElementById('f-cat').value = 'Moradia';
+  document.getElementById('f-estabelecimento').value = '';
   setType('expense');
   document.getElementById('modal').classList.add('open');
   setTimeout(() => document.getElementById('f-name').focus(), 100);
@@ -2908,6 +3036,7 @@ function openEditModal(id) {
   document.getElementById('f-installments').value = '';
   document.getElementById('installment-group').style.display = 'none';
   document.getElementById('f-cat').value = e.cat || 'Outros';
+  document.getElementById('f-estabelecimento').value = e.estabelecimento || '';
   setType(e.type);
   document.getElementById('modal').classList.add('open');
   setTimeout(() => document.getElementById('f-name').focus(), 100);
@@ -2929,15 +3058,19 @@ function saveEntry() {
   if (!amount || amount <= 0) { document.getElementById('f-amount').focus(); return; }
   const freq = document.getElementById('f-freq').value;
   const cat = document.getElementById('f-cat').value;
+  const estabelecimento = (document.getElementById('f-estabelecimento').value || '').trim();
   const dateVal = document.getElementById('f-date').value;
   const dateParts = dateVal ? dateVal.split('-') : null;
   const entryDay = dateParts ? parseInt(dateParts[2]) : 1;
   const startMonth = dateParts ? parseInt(dateParts[1]) - 1 : curMonth;
   const startYear = dateParts ? parseInt(dateParts[0]) : curYear;
 
+  // Monta nome completo com estabelecimento se fornecido
+  const fullName = estabelecimento ? `${name} — ${estabelecimento}` : name;
+
   // Se tipo depósito: alimenta o caixa e não cria lançamento normal
   if (curType === 'deposit') {
-    const desc = name || 'Depósito via lançamento';
+    const desc = fullName || 'Depósito via lançamento';
     const dateVal2 = document.getElementById('f-date').value;
     addCaixaMov('deposito', desc, parseFloat(amount.toFixed(2)), dateVal2);
     closeModal();
@@ -2948,7 +3081,28 @@ function saveEntry() {
     // Modo edição — atualiza só este lançamento
     const idx = entries.findIndex(x => x.id === editingId);
     if (idx !== -1) {
-      entries[idx] = { ...entries[idx], name, amount: parseFloat(amount.toFixed(2)), type: curType, freq, cat, month: startMonth, year: startYear, day: entryDay };
+      const old = entries[idx];
+      // Reverte o impacto anterior na fatura se era cartão
+      if (old.type === 'expense' && CARD_FATURA_MAP[old.cat]) {
+        const oldFatName = CARD_FATURA_MAP[old.cat];
+        const fatIdx = entries.findIndex(e =>
+          e.name === oldFatName && e.type === 'expense' &&
+          e.month === old.month && e.year === old.year
+        );
+        if (fatIdx !== -1) {
+          const revertado = parseFloat((entries[fatIdx].amount - old.amount).toFixed(2));
+          if (revertado <= 0) {
+            entries = entries.filter(e => !(e.name === oldFatName && e.month === old.month && e.year === old.year));
+          } else {
+            entries[fatIdx] = { ...entries[fatIdx], amount: revertado };
+          }
+        }
+      }
+      entries[idx] = { ...old, name: fullName, amount: parseFloat(amount.toFixed(2)), type: curType, freq, cat, estabelecimento, month: startMonth, year: startYear, day: entryDay };
+      // Aplica novo impacto na fatura se nova categoria é cartão
+      if (curType === 'expense' && CARD_FATURA_MAP[cat]) {
+        updateCardFatura(cat, parseFloat(amount.toFixed(2)), startMonth, startYear);
+      }
     }
     persist();
     closeModal();
@@ -2957,6 +3111,9 @@ function saveEntry() {
   }
 
   // Modo criação
+  // Se for cartão de crédito, atualiza a fatura existente E cria lançamento detalhado
+  const isCardCat = ['Cartão Santander','Cartão Nubank','Cartão Itaú'].includes(cat);
+
   if (freq === 'installment') {
     const totalParcelas = parseInt(document.getElementById('f-installments').value);
     if (!totalParcelas || totalParcelas < 2) { document.getElementById('f-installments').focus(); return; }
@@ -2966,15 +3123,22 @@ function saveEntry() {
       let m = startMonth + i;
       let y = startYear + Math.floor(m / 12);
       m = m % 12;
+      const parcelaAmt = i === totalParcelas - 1 ? parseFloat((amount - parcela * (totalParcelas - 1)).toFixed(2)) : parcela;
+      const parcelaName = `${fullName} (${i+1}/${totalParcelas})`;
       entries.push({
         id: groupId + '_' + i,
-        name: `${name} (${i+1}/${totalParcelas})`,
-        amount: i === totalParcelas - 1 ? parseFloat((amount - parcela * (totalParcelas - 1)).toFixed(2)) : parcela,
-        type: curType, freq: 'installment', cat, month: m, year: y, day: entryDay, groupId
+        name: parcelaName,
+        amount: parcelaAmt,
+        type: curType, freq: 'installment', cat, estabelecimento, month: m, year: y, day: entryDay, groupId
       });
+      if (isCardCat) updateCardFatura(cat, parcelaAmt, m, y);
     }
   } else {
-    entries.push({ id: Date.now().toString(), name, amount: parseFloat(amount.toFixed(2)), type: curType, freq, cat, month: startMonth, year: startYear, day: entryDay });
+    entries.push({ id: Date.now().toString(), name: fullName, amount: parseFloat(amount.toFixed(2)), type: curType, freq, cat, estabelecimento, month: startMonth, year: startYear, day: entryDay });
+    // Atualiza fatura do cartão se necessário
+    if (isCardCat && curType === 'expense') {
+      updateCardFatura(cat, parseFloat(amount.toFixed(2)), startMonth, startYear);
+    }
   }
   persist();
   closeModal();
@@ -3116,13 +3280,20 @@ function hideStatus(id) { document.getElementById(id).className = 'ai-status'; }
 
 const CAT_MAP = {
   'aluguel':'Moradia','casa':'Moradia','água':'Moradia','luz':'Moradia','energia':'Moradia','internet':'Moradia','condomínio':'Moradia',
-  'mercado':'Alimentação','supermercado':'Alimentação','restaurante':'Alimentação','lanche':'Alimentação','pizza':'Alimentação','delivery':'Alimentação','ifood':'Alimentação','comida':'Alimentação',
+  'mercado':'Mercado','supermercado':'Mercado','hortifruti':'Mercado','açougue':'Mercado',
+  'restaurante':'Restaurante','lanche':'Restaurante','pizza':'Restaurante','hamburguer':'Restaurante','churrasco':'Restaurante','café':'Restaurante','padaria':'Restaurante',
+  'delivery':'Delivery','ifood':'Delivery','rappi':'Delivery','uber eats':'Delivery',
   'combustível':'Transporte','gasolina':'Transporte','uber':'Transporte','99':'Transporte','estacionamento':'Transporte','pedágio':'Transporte','carro':'Transporte','ônibus':'Transporte',
   'médico':'Saúde','farmácia':'Saúde','remédio':'Saúde','academia':'Saúde','hospital':'Saúde','dentista':'Saúde','plano de saúde':'Saúde',
-  'netflix':'Lazer','spotify':'Lazer','cinema':'Lazer','jogo':'Lazer','streaming':'Lazer','viagem':'Lazer',
+  'netflix':'Streaming','spotify':'Streaming','amazon prime':'Streaming','disney':'Streaming','hbo':'Streaming','youtube premium':'Streaming',
+  'apple':'Assinatura','google':'Assinatura','microsoft':'Assinatura','icloud':'Assinatura','assinatura':'Assinatura',
+  'cinema':'Lazer','jogo':'Lazer','streaming':'Lazer','viagem':'Lazer',
   'curso':'Educação','escola':'Educação','livro':'Educação','faculdade':'Educação',
   'roupa':'Roupas','sapato':'Roupas','tênis':'Roupas',
-  'cartão':'Cartão','santander':'Cartão','nubank':'Cartão','itaú':'Cartão','bradesco':'Cartão','fatura':'Cartão','crédito':'Cartão',
+  'cartão santander':'Cartão Santander','santander':'Cartão Santander',
+  'nubank':'Cartão Nubank','cartão nubank':'Cartão Nubank','roxinho':'Cartão Nubank',
+  'itaú':'Cartão Itaú','cartão itaú':'Cartão Itaú',
+  'cartão':'Cartão','fatura':'Cartão','crédito':'Cartão','bradesco':'Cartão',
   'salário':'','freelance':'','pensão':'','renda':'','receita':'','pagamento recebido':''
 };
 
@@ -3166,9 +3337,10 @@ ${isImage ? '' : `Frase: "${text}"`}
 Responda APENAS com um JSON válido neste formato exato (sem markdown, sem explicação):
 {
   "name": "descrição curta do lançamento",
+  "estabelecimento": "nome do estabelecimento/marca/app identificado ou null",
   "amount": 0.00,
   "type": "expense ou income",
-  "cat": "uma de: Moradia, Alimentação, Transporte, Saúde, Lazer, Educação, Roupas, Cartão, Outros",
+  "cat": "uma de: Moradia, Alimentação, Transporte, Saúde, Lazer, Educação, Roupas, Mercado, Restaurante, Delivery, Streaming, Assinatura, Cartão Santander, Cartão Nubank, Cartão Itaú, Cartão, Outros",
   "freq": "fixed ou variable",
   "day": null
 }
@@ -3176,11 +3348,20 @@ Responda APENAS com um JSON válido neste formato exato (sem markdown, sem expli
 Regras:
 - type = income se for salário, recebimento, transferência recebida, pix recebido
 - type = expense para pagamentos, compras, faturas, boletos
-- cat = Cartão se mencionar cartão de crédito, fatura, Santander, Nubank, Itaú, Bradesco
+- cat = "Cartão Santander" se mencionar Santander, fatura Santander, cartão Santander
+- cat = "Cartão Nubank" se mencionar Nubank, fatura Nubank, cartão roxinho
+- cat = "Cartão Itaú" se mencionar Itaú, fatura Itaú
+- cat = "Cartão" se mencionar cartão de crédito, fatura sem identificar banco
+- cat = "Mercado" para mercado, supermercado, hortifruti
+- cat = "Restaurante" para restaurante, lanchonete, pizzaria, padaria
+- cat = "Delivery" para iFood, Rappi, Uber Eats, delivery
+- cat = "Streaming" para Netflix, Spotify, Amazon Prime, Disney+, HBO
+- cat = "Assinatura" para Apple, Google, Microsoft, iCloud, apps
 - freq = fixed se mencionar mensal, todo mês, fixo; caso contrário variable
 - amount deve ser número decimal com ponto (ex: 800.00)
-- day = dia do mês se mencionado, null caso contrário
-- name deve ser conciso (max 40 chars)`;
+- day = dia do mês se mencionado ou visível no comprovante, null caso contrário
+- name deve ser conciso (max 40 chars)
+- estabelecimento: nome do estabelecimento/loja/app identificado (ex: "iFood", "Netflix", "Mercado Machado", "Apple", "Santander"), null se não identificado`;
 
   const raw = await callGemini(prompt, isImage ? text : null, isImage ? mimeType_cache : null);
   const clean = raw.replace(/```json|```/g, '').trim();
@@ -3194,7 +3375,10 @@ function applyParsedEntry(parsed) {
   if (parsed.cat && parsed.type !== 'income') {
     const sel = document.getElementById('f-cat');
     const opt = [...sel.options].find(o => o.value === parsed.cat);
-    if (opt) sel.value = parsed.cat;
+    if (opt) { sel.value = parsed.cat; onCatChange(parsed.cat); }
+  }
+  if (parsed.estabelecimento && parsed.estabelecimento !== 'null') {
+    document.getElementById('f-estabelecimento').value = parsed.estabelecimento;
   }
   if (parsed.freq) {
     document.getElementById('f-freq').value = parsed.freq;

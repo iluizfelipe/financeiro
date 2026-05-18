@@ -2318,9 +2318,15 @@ function getMonthEntries() {
   return entries.filter(e => e.month === curMonth && e.year === curYear);
 }
 
+// Categorias de cartão que geram fatura separada — não devem entrar nos totais
+// para evitar dupla contagem (a fatura já representa o total gasto no cartão)
+const CARD_CATS = new Set(['Cartão Santander', 'Cartão Nubank', 'Cartão Itaú']);
+
 function totals(list) {
   let ti = 0, te = 0, fi = 0, vi = 0, fe = 0, ve = 0;
   list.forEach(e => {
+    // Pula despesas individuais de cartão — ja somadas na fatura
+    if (e.type === 'expense' && CARD_CATS.has(e.cat)) return;
     if (e.type === 'income') {
       ti += e.amount;
       e.freq === 'fixed' ? fi += e.amount : vi += e.amount;

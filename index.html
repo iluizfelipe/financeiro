@@ -120,6 +120,9 @@
 
   .nav-item i { font-size: 17px; }
 
+  /* sidebar-nav: no desktop é só um wrapper transparente */
+  #sidebar-nav { display: block; }
+
   .month-selector {
     padding: 14px 18px;
     border-top: 1px solid var(--border);
@@ -170,6 +173,25 @@
   }
 
   .summary-row span:last-child { font-weight: 500; color: var(--text); }
+
+  .sb-caixa-mes-row { margin-top: 2px; padding-top: 6px; border-top: 1px dashed var(--border); }
+  .sb-caixa-mes-row span:first-child { color: var(--blue-text); font-weight: 500; }
+  .sb-caixa-mes-row span:last-child { color: var(--blue-text); }
+
+  .summary-balance-quitado {
+    background: var(--green-bg);
+    color: var(--green-text);
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    padding: 6px;
+    border-radius: var(--r-md);
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+  }
 
   .progress-bar {
     height: 6px;
@@ -265,8 +287,9 @@
   /* CHARTS */
   .charts-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr 1fr 1fr;
     gap: 16px;
+    align-items: start;
   }
 
   .card {
@@ -332,6 +355,22 @@
 
   .entry-list.scrollable { max-height: 320px; overflow-y: auto; }
 
+  /* Compact variant used in entries view */
+  .entry-list.compact { gap: 4px; }
+  .entry-list.compact .entry-row {
+    padding: 6px 10px;
+    gap: 8px;
+  }
+  .entry-list.compact .entry-icon {
+    width: 28px; height: 28px;
+    font-size: 13px;
+  }
+  .entry-list.compact .entry-name { font-size: 12px; }
+  .entry-list.compact .entry-meta { font-size: 10px; margin-top: 1px; }
+  .entry-list.compact .entry-amount { font-size: 12px; }
+  .entry-list.compact .del-btn,
+  .entry-list.compact .edit-btn { width: 22px; height: 22px; font-size: 13px; }
+
   .entry-row {
     display: flex;
     align-items: center;
@@ -356,6 +395,67 @@
   .entry-info { flex: 1; min-width: 0; }
   .entry-name { font-size: 13px; font-weight: 500; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .entry-meta { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+  /* ── FIXED SUMMARY BOXES (entries view top) ── */
+  .entries-fixed-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .fixed-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    overflow: hidden;
+  }
+  .fixed-box-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .fixed-box-header-left {
+    display: flex; align-items: center; gap: 6px;
+  }
+  .fixed-box-header.expenses { background: var(--red-bg); color: var(--red-text); border-bottom: 1px solid #f3c9bb; }
+  .fixed-box-header.incomes  { background: var(--green-bg); color: var(--green-text); border-bottom: 1px solid #c4e5b5; }
+  .fixed-box-total { font-size: 13px; font-weight: 700; }
+  .fixed-box-list  { max-height: 200px; overflow-y: auto; }
+  .fixed-box-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11.5px;
+  }
+  .fixed-box-row:last-child { border-bottom: none; }
+  .fixed-box-row:hover { background: var(--surface2); }
+  .fixed-box-icon {
+    width: 22px; height: 22px;
+    border-radius: 5px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .fixed-box-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--text); font-weight: 500; }
+  .fixed-box-cat  { font-size: 10px; color: var(--text3); }
+  .fixed-box-amount { font-size: 12px; font-weight: 600; flex-shrink: 0; }
+  .fixed-box-amount.expense { color: var(--red); }
+  .fixed-box-amount.income  { color: var(--green); }
+  .fixed-box-act { display: flex; gap: 2px; flex-shrink: 0; }
+  .fixed-box-btn {
+    background: none; border: none; cursor: pointer;
+    font-size: 12px; width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 4px; color: var(--text3);
+    transition: background 0.12s, color 0.12s;
+  }
+  .fixed-box-btn.edit:hover { background: var(--blue-bg); color: var(--blue); }
+  .fixed-box-btn.del:hover  { background: var(--red-bg);  color: var(--red); }
+  .fixed-box-empty { padding: 14px; text-align: center; font-size: 11px; color: var(--text3); }
 
   .badge {
     font-size: 10px;
@@ -631,6 +731,45 @@
 
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+  /* QUITAR MÊS */
+  .btn-quitar-mes {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 2px solid #1D9E75;
+    border-radius: var(--r-md);
+    background: var(--green-bg);
+    color: var(--green-text);
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    font-family: inherit;
+  }
+  .btn-quitar-mes:hover { background: #1D9E75; color: #fff; border-color: #1D9E75; }
+  .btn-quitar-mes i { font-size: 16px; }
+
+  .quitar-mes-info {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .quitar-mes-row { display: flex; justify-content: space-between; font-size: 13px; color: var(--text2); }
+  .quitar-mes-row span:last-child { font-weight: 600; color: var(--text); }
+  .quitar-mes-row.destaque span:last-child { font-size: 15px; color: var(--green-text); }
+  .quitar-mes-row.alerta span:last-child { color: var(--red-text); }
+  .quitar-mes-divider { height: 1px; background: var(--border); margin: 2px 0; }
+  .quitar-mes-aviso { font-size: 12px; color: var(--text3); margin-top: 4px; line-height: 1.5; }
 
   /* ── SEARCH BAR ── */
   .search-wrap {
@@ -983,10 +1122,242 @@
 
   /* Modal caixa */
   .type-btn.deposit.active { background: #FDF8E1; color: #7A5700; border-color: #B8860B; }
+  /* ── CAIXA MÊS ── */
+  .caixa-mes-card {
+    background: var(--surface);
+    border: 1px solid #b5d4f4;
+    border-radius: var(--r-lg);
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .caixa-mes-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .caixa-mes-title { font-size: 14px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 7px; }
+  .caixa-mes-title i { color: var(--blue); font-size: 16px; }
+  .caixa-mes-month-badge { font-size: 10px; font-weight: 600; background: var(--blue-bg); color: var(--blue-text); border-radius: 20px; padding: 2px 8px; }
+  .caixa-mes-saldo-wrap { background: var(--blue-bg); border: 1px solid #b5d4f4; border-radius: var(--r-md); padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+  .caixa-mes-saldo-label { font-size: 12px; color: var(--blue-text); font-weight: 500; }
+  .caixa-mes-saldo-value { font-size: 26px; font-weight: 800; color: var(--blue-text); letter-spacing: -0.5px; }
+  .caixa-mes-btns { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn-caixa-mes { flex:1; display:flex; align-items:center; justify-content:center; gap:5px; padding:8px 10px; font-size:12px; font-weight:500; border-radius:var(--r-md); border:none; cursor:pointer; font-family:inherit; transition:all 0.12s; white-space:nowrap; }
+  .btn-caixa-mes.deposito { background:var(--blue-bg); color:var(--blue-text); border:1px solid #b5d4f4; }
+  .btn-caixa-mes.deposito:hover { background:#d0e8f8; }
+  .btn-caixa-mes.retirada { background:var(--red-bg); color:var(--red-text); border:1px solid #f3c9bb; }
+  .btn-caixa-mes.retirada:hover { background:#f5d5c8; }
+  .btn-caixa-mes.transfer-in  { background:var(--green-bg); color:var(--green-text); border:1px solid #c4e5b5; }
+  .btn-caixa-mes.transfer-in:hover  { background:#d5edca; }
+  .btn-caixa-mes.transfer-out { background:var(--amber-bg); color:var(--amber-text); border:1px solid #f0d49a; }
+  .btn-caixa-mes.transfer-out:hover { background:#f5e4b8; }
+  .caixa-mes-hist { margin-top:14px; border-top:1px solid var(--border); padding-top:12px; display:flex; flex-direction:column; gap:6px; max-height:200px; overflow-y:auto; }
+  .caixa-mes-hist-title { font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--text3); margin-bottom:4px; }
+  .caixa-mes-mov { display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:var(--r-md); background:var(--surface2); border:1px solid var(--border); font-size:12px; }
+  .caixa-mes-mov-icon { width:28px; height:28px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; }
+  .caixa-mes-mov.entrada      .caixa-mes-mov-icon { background:var(--blue-bg);   color:var(--blue);       }
+  .caixa-mes-mov.saida        .caixa-mes-mov-icon { background:var(--red-bg);    color:var(--red);        }
+  .caixa-mes-mov.transfer-in  .caixa-mes-mov-icon { background:var(--green-bg);  color:var(--green);      }
+  .caixa-mes-mov.transfer-out .caixa-mes-mov-icon { background:var(--amber-bg);  color:var(--amber-text); }
+  .caixa-mes-mov-info { flex:1; min-width:0; }
+  .caixa-mes-mov-desc { font-weight:500; color:var(--text); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .caixa-mes-mov-date { font-size:10px; color:var(--text3); margin-top:1px; }
+  .caixa-mes-mov-val { font-weight:700; flex-shrink:0; }
+  .caixa-mes-mov.entrada      .caixa-mes-mov-val { color:var(--blue);       }
+  .caixa-mes-mov.saida        .caixa-mes-mov-val { color:var(--red);        }
+  .caixa-mes-mov.transfer-in  .caixa-mes-mov-val { color:var(--green);      }
+  .caixa-mes-mov.transfer-out .caixa-mes-mov-val { color:var(--amber-text); }
+  .caixa-mes-mov-del { background:none; border:none; cursor:pointer; color:var(--text3); font-size:13px; width:22px; height:22px; display:flex; align-items:center; justify-content:center; border-radius:4px; flex-shrink:0; transition:background 0.12s,color 0.12s; }
+  .caixa-mes-mov-del:hover { background:var(--red-bg); color:var(--red); }
 
-  /* ══════════════════════════════════════════
-     IPHONE VIEW
-  ══════════════════════════════════════════ */
+
+  /* ═══════════════════════════════════════════════════════════
+     RESPONSIVO MOBILE  — ativa automaticamente em telas ≤ 768px
+  ═══════════════════════════════════════════════════════════ */
+  @media (max-width: 768px) {
+
+    /* ── Layout base ── */
+    body { display: block; }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    /* ── Sidebar vira bottom nav fixo ── */
+    .sidebar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      top: auto;
+      height: auto;
+      width: 100%;
+      display: flex !important;
+      flex-direction: row;
+      border-right: none;
+      border-top: 1px solid var(--border);
+      z-index: 100;
+      overflow: hidden;
+      padding: 0;
+      background: var(--surface);
+    }
+
+    .sidebar-logo,
+    .sidebar-section-label,
+    .month-selector,
+    .sidebar-summary { display: none !important; }
+
+    /* O wrapper display:contents se torna flex row */
+    #sidebar-nav {
+      display: flex !important;
+      flex-direction: row;
+      width: 100%;
+    }
+
+    /* No mobile, o texto dos nav-items fica pequeno e centralizado */
+    .nav-label { font-size: 10px; line-height: 1; }
+
+    /* Reposiciona os nav-items em linha */
+    .nav-item {
+      flex-direction: column;
+      gap: 3px;
+      padding: 8px 4px 10px;
+      font-size: 10px;
+      border-left: none;
+      border-top: 3px solid transparent;
+      text-align: center;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+    }
+    .nav-item.active {
+      border-left: none;
+      border-top-color: var(--blue);
+    }
+    .nav-item i { font-size: 20px; }
+
+    /* ── Main ocupa tela toda ── */
+    .main {
+      min-height: 100vh;
+      padding-bottom: 70px; /* espaço para o bottom nav */
+    }
+
+    /* ── Topbar mobile ── */
+    .topbar {
+      padding: 0 14px;
+      height: 52px;
+    }
+    .topbar-title { font-size: 15px; }
+
+    /* Oculta busca e mês no topbar; mantém só o botão novo */
+    #search-wrap,
+    #topbar-month { display: none !important; }
+
+    .topbar-actions {
+      margin-left: 0 !important;
+      gap: 8px;
+    }
+
+    /* Seletor de mês: aparece dentro do conteúdo no mobile */
+    .mobile-month-bar {
+      display: flex !important;
+    }
+
+    /* ── Content padding reduzido ── */
+    .content { padding: 14px 12px; gap: 14px; }
+
+    /* ── Métricas: 2 colunas ── */
+    .metrics-grid {
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .metric-card { padding: 12px 14px; }
+    .metric-value { font-size: 18px; }
+
+    /* ── Charts row: coluna única ── */
+    .charts-row {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    /* ── Caixa e Caixa Mês lado a lado no mobile ── */
+    .caixa-mes-btns { flex-wrap: wrap; }
+    .btn-caixa-mes { min-width: calc(50% - 4px); flex: unset; }
+    .caixa-saldo-value, .caixa-mes-saldo-value { font-size: 22px; }
+
+    /* ── Panels (Despesas/Receitas): coluna única ── */
+    .panels-row { grid-template-columns: 1fr; }
+    .entries-fixed-row { grid-template-columns: 1fr; }
+
+    /* ── Tabelas de lançamentos ── */
+    /* Esconde colunas menos importantes */
+    .panel-table .td-cat,
+    .panel-table thead th:nth-child(2),
+    .panel-table td:nth-child(2),
+    .panel-table thead th:nth-child(3),
+    .panel-table td:nth-child(3) { display: none; }
+
+    /* ── Modais ocupam tela inteira no mobile ── */
+    .modal-overlay {
+      align-items: flex-end;
+    }
+    .modal {
+      width: 100% !important;
+      max-width: 100% !important;
+      border-radius: var(--r-lg) var(--r-lg) 0 0 !important;
+      max-height: 92vh;
+      padding: 20px 16px 28px;
+    }
+
+    /* ── Form rows viram coluna ── */
+    .form-row { grid-template-columns: 1fr; }
+
+    /* ── Type buttons menores ── */
+    .type-btn { font-size: 12px; padding: 8px 6px; }
+
+    /* ── Botão novo lançamento mais compacto ── */
+    .btn-primary { padding: 8px 12px; font-size: 12px; }
+    .btn-primary-label { display: none; }
+
+    /* ── Entrada de lista compacta ── */
+    .entry-list.scrollable { max-height: 260px; }
+
+    /* ── GS bar ── */
+    .gs-bar { font-size: 11px; padding: 4px 10px; }
+
+    /* ── Ajuste de card genérico ── */
+    .card { padding: 14px 14px; }
+
+    /* ── Seletor de mês flutuante no topo do conteúdo ── */
+  }
+
+  /* Barra de mês exclusiva para mobile — hidden no desktop */
+  .mobile-month-bar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-md);
+    padding: 8px 14px;
+  }
+  .mobile-month-bar .mob-month-label {
+    font-size: 13px; font-weight: 600; color: var(--text);
+  }
+  .mobile-month-bar .mob-month-nav {
+    display: flex; align-items: center; gap: 4px;
+  }
+  .mobile-month-bar .mob-month-nav button {
+    background: none; border: none; cursor: pointer;
+    color: var(--text2); font-size: 18px;
+    width: 28px; height: 28px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 6px;
+  }
+  .mobile-month-bar .mob-month-nav button:hover { background: var(--border); }
+  .mobile-month-bar .mob-month-name {
+    font-size: 13px; font-weight: 500; color: var(--text);
+    min-width: 80px; text-align: center;
+  }
   .iphone-stage {
     display: flex;
     justify-content: center;
@@ -1696,16 +2067,14 @@
     </div>
 
     <div class="sidebar-section-label">Navegação</div>
-    <button class="nav-item active" onclick="showView('dashboard', this)">
-      <i class="ti ti-layout-dashboard"></i> Painel geral
-    </button>
-    <button class="nav-item" onclick="showView('entries', this)">
-      <i class="ti ti-list"></i> Todos os lançamentos
-    </button>
-    <button class="nav-item" onclick="showView('iphone', this)">
-      <i class="ti ti-device-mobile"></i> iPhone
-    </button>
-
+    <div id="sidebar-nav">
+      <button class="nav-item active" onclick="showView('dashboard', this)">
+        <i class="ti ti-layout-dashboard"></i> <span class="nav-label">Painel</span>
+      </button>
+      <button class="nav-item" onclick="showView('entries', this)">
+        <i class="ti ti-list"></i> <span class="nav-label">Lançamentos</span>
+      </button>
+    </div>
     <div class="month-selector">
       <div class="month-selector-label">Mês de referência</div>
       <div class="month-nav">
@@ -1718,6 +2087,7 @@
     <div class="sidebar-summary">
       <div class="summary-row"><span>Receitas</span><span id="sb-income">R$ 0,00</span></div>
       <div class="summary-row"><span>Despesas</span><span id="sb-expense">R$ 0,00</span></div>
+      <div class="summary-row sb-caixa-mes-row"><span>Caixa Mês</span><span id="sb-caixa-mes">R$ 0,00</span></div>
       <div class="progress-bar"><div class="progress-fill" id="sb-bar" style="width:0%"></div></div>
       <div class="summary-balance positive" id="sb-balance">Saldo: R$ 0,00</div>
     </div>
@@ -1735,12 +2105,22 @@
         </div>
         <span id="topbar-month" style="font-size:13px;color:#6b6b66;white-space:nowrap;"></span>
         <button class="btn-primary" onclick="openModal()" style="white-space:nowrap;">
-          <i class="ti ti-plus"></i> Novo lançamento
+          <i class="ti ti-plus"></i> <span class="btn-primary-label">Novo lançamento</span>
         </button>
       </div>
     </div>
 
     <div class="content">
+
+      <!-- BARRA DE MÊS MOBILE (visível só em celular) -->
+      <div class="mobile-month-bar" id="mobile-month-bar">
+        <span class="mob-month-label">Mês de referência</span>
+        <div class="mob-month-nav">
+          <button onclick="changeMonth(-1)" aria-label="Mês anterior">‹</button>
+          <span class="mob-month-name" id="mob-month-label"></span>
+          <button onclick="changeMonth(1)" aria-label="Próximo mês">›</button>
+        </div>
+      </div>
 
       <!-- DASHBOARD VIEW -->
       <div class="view active" id="view-dashboard">
@@ -1770,7 +2150,7 @@
 
         <div class="charts-row">
 
-          <!-- CAIXA -->
+          <!-- CAIXA (compacto) -->
           <div class="caixa-card">
             <div class="caixa-header">
               <div class="caixa-title"><i class="ti ti-safe"></i> Caixa</div>
@@ -1796,17 +2176,66 @@
             </div>
           </div>
 
-          <!-- RESUMO MOVIMENTAÇÕES (substitui Fixo vs Variável) -->
-          <div class="card">
-            <div class="card-title">Resumo de movimentações do caixa</div>
-            <div id="caixa-resumo-list" style="display:flex;flex-direction:column;gap:8px;max-height:320px;overflow-y:auto;"></div>
+          <!-- CAIXA MÊS -->
+          <div class="caixa-mes-card">
+            <div class="caixa-mes-header">
+              <div class="caixa-mes-title"><i class="ti ti-calendar-dollar"></i> Caixa Mês</div>
+              <span class="caixa-mes-month-badge" id="caixa-mes-badge">—</span>
+            </div>
+            <div class="caixa-mes-saldo-wrap">
+              <div>
+                <div class="caixa-mes-saldo-label">Saldo do mês</div>
+                <div class="caixa-mes-saldo-value" id="caixa-mes-saldo">R$ 0,00</div>
+              </div>
+              <i class="ti ti-wallet" style="font-size:32px;color:var(--blue);opacity:0.5;"></i>
+            </div>
+            <div class="caixa-mes-btns">
+              <button class="btn-caixa-mes deposito" onclick="openCaixaMesModal('entrada')">
+                <i class="ti ti-plus"></i> Depósito
+              </button>
+              <button class="btn-caixa-mes retirada" onclick="openCaixaMesModal('saida')">
+                <i class="ti ti-minus"></i> Retirada
+              </button>
+              <button class="btn-caixa-mes transfer-in" onclick="openTransferenciaModal('caixa-para-mes')" title="Transferir do Caixa para cá">
+                <i class="ti ti-transfer-in"></i> ← Caixa
+              </button>
+              <button class="btn-caixa-mes transfer-out" onclick="openTransferenciaModal('mes-para-caixa')" title="Transferir daqui para Caixa">
+                <i class="ti ti-transfer-out"></i> Caixa →
+              </button>
+            </div>
+            <button class="btn-quitar-mes" onclick="quitarMes()" title="Usar saldo do Caixa Mês para pagar todas as despesas do mês atual">
+              <i class="ti ti-circle-check"></i> Quitar Mês
+            </button>
+            <div class="caixa-mes-hist">
+              <div class="caixa-mes-hist-title">Movimentações do mês</div>
+              <div id="caixa-mes-hist-list"></div>
+            </div>
+          </div>
+
+          <!-- DESPESAS FIXAS -->
+          <div class="card" style="flex:1;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <div style="width:28px;height:28px;background:var(--blue-bg);border-radius:6px;display:flex;align-items:center;justify-content:center;color:var(--blue);font-size:14px;">
+                  <i class="ti ti-pin"></i>
+                </div>
+                <span class="card-title" style="margin:0;">Despesas Fixas</span>
+              </div>
+              <span style="font-size:13px;font-weight:700;color:var(--red);" id="dash-fixed-total">R$ 0,00</span>
+            </div>
+            <div id="dash-fixed-list" style="display:flex;flex-direction:column;gap:6px;max-height:320px;overflow-y:auto;"></div>
           </div>
 
         </div>
+        <!-- hidden resumo (mantido para compatibilidade com renderCaixa) -->
+        <div id="caixa-resumo-list" style="display:none;"></div>
 
         <div class="card">
           <div class="list-header">
-            <span class="card-title" style="margin:0;">Lançamentos recentes</span>
+            <div>
+              <span class="card-title" style="margin:0;">Lançamentos recentes</span>
+              <span style="font-size:11px;color:var(--text3);margin-left:6px;">variáveis</span>
+            </div>
             <div class="filter-tabs">
               <button class="filter-tab active" onclick="setFilter('all', this, 'dash')">Todos</button>
               <button class="filter-tab" onclick="setFilter('income', this, 'dash')">Receitas</button>
@@ -1820,6 +2249,41 @@
 
       <!-- ENTRIES VIEW -->
       <div class="view" id="view-entries">
+
+        <!-- CAIXAS FIXAS NO TOPO -->
+        <div class="entries-fixed-row">
+
+          <!-- DESPESAS FIXAS + FATURAS -->
+          <div class="fixed-box">
+            <div class="fixed-box-header expenses">
+              <div class="fixed-box-header-left">
+                <i class="ti ti-pin"></i>
+                <span>Despesas Fixas &amp; Faturas</span>
+              </div>
+              <span class="fixed-box-total expense" id="entries-fixed-exp-total">R$ 0,00</span>
+            </div>
+            <div class="fixed-box-list" id="entries-fixed-exp-list">
+              <div class="fixed-box-empty">Nenhuma despesa fixa</div>
+            </div>
+          </div>
+
+          <!-- RECEITAS FIXAS -->
+          <div class="fixed-box">
+            <div class="fixed-box-header incomes">
+              <div class="fixed-box-header-left">
+                <i class="ti ti-coin"></i>
+                <span>Receitas Fixas</span>
+              </div>
+              <span class="fixed-box-total income" id="entries-fixed-inc-total">R$ 0,00</span>
+            </div>
+            <div class="fixed-box-list" id="entries-fixed-inc-list">
+              <div class="fixed-box-empty">Nenhuma receita fixa</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- TABELAS DE LANÇAMENTOS VARIÁVEIS -->
         <div class="panels-row">
 
           <!-- DESPESAS -->
@@ -1876,133 +2340,6 @@
 
         </div>
       </div>
-
-      <!-- ═══════════════════════════════════════
-           IPHONE VIEW
-      ════════════════════════════════════════ -->
-      <div class="view" id="view-iphone">
-        <div class="iphone-stage">
-          <div class="iphone-body">
-
-            <div class="iphone-screen">
-
-              <!-- Dynamic Island -->
-              <div class="iphone-island">
-                <div class="iph-faceid"></div>
-                <div class="iph-camera"></div>
-                <div class="iph-faceid"></div>
-              </div>
-
-              <!-- Status bar -->
-              <div class="iph-statusbar">
-                <span class="iph-statusbar-time" id="iph-clock">9:41</span>
-                <div class="iph-statusbar-icons">
-                  <i class="ti ti-wifi" style="font-size:13px;"></i>
-                  <i class="ti ti-signal-4g" style="font-size:11px;"></i>
-                  <i class="ti ti-battery-3" style="font-size:14px;"></i>
-                </div>
-              </div>
-
-              <!-- Scrollable content -->
-              <div class="iph-content">
-
-                <!-- Header: title + month nav -->
-                <div class="iph-header">
-                  <span class="iph-header-title">💰 Financeiro</span>
-                  <div class="iph-header-month">
-                    <button onclick="changeMonth(-1)" aria-label="Mês anterior">‹</button>
-                    <span id="iph-month"></span>
-                    <button onclick="changeMonth(1)" aria-label="Próximo mês">›</button>
-                  </div>
-                </div>
-
-                <!-- Metrics 2x2 -->
-                <div class="iph-metrics">
-                  <div class="iph-metric-card">
-                    <div class="iph-metric-label" style="color:#1D9E75;"><i class="ti ti-trending-up"></i> Receitas</div>
-                    <div class="iph-metric-value green" id="iph-m-income">R$ 0,00</div>
-                    <div class="iph-metric-sub" id="iph-m-income-sub">—</div>
-                  </div>
-                  <div class="iph-metric-card">
-                    <div class="iph-metric-label" style="color:#D85A30;"><i class="ti ti-trending-down"></i> Despesas</div>
-                    <div class="iph-metric-value red" id="iph-m-expense">R$ 0,00</div>
-                    <div class="iph-metric-sub" id="iph-m-expense-sub">—</div>
-                  </div>
-                  <div class="iph-metric-card">
-                    <div class="iph-metric-label"><i class="ti ti-scale" style="color:#378ADD;"></i> Saldo mês</div>
-                    <div class="iph-metric-value" id="iph-m-balance">R$ 0,00</div>
-                    <div class="iph-metric-sub" id="iph-m-balance-sub">—</div>
-                  </div>
-                  <div class="iph-metric-card">
-                    <div class="iph-metric-label"><i class="ti ti-chart-pie" style="color:#7F77DD;"></i> Taxa gasto</div>
-                    <div class="iph-metric-value" id="iph-m-rate">0%</div>
-                    <div class="iph-metric-sub">das receitas</div>
-                  </div>
-                </div>
-
-                <!-- Caixa compact -->
-                <div class="iph-caixa-card">
-                  <div class="iph-caixa-header">
-                    <div class="iph-caixa-title"><i class="ti ti-safe"></i> Caixa</div>
-                  </div>
-                  <div class="iph-caixa-saldo-wrap">
-                    <div>
-                      <div class="iph-caixa-saldo-label">Saldo em caixa</div>
-                      <div class="iph-caixa-saldo-value" id="iph-caixa-saldo">R$ 0,00</div>
-                    </div>
-                    <i class="ti ti-coin" style="font-size:26px;color:#E8D48A;"></i>
-                  </div>
-                  <div class="iph-caixa-btns">
-                    <button class="iph-btn-caixa entrada" onclick="openCaixaModal('entrada')">
-                      <i class="ti ti-plus"></i> Adicionar
-                    </button>
-                    <button class="iph-btn-caixa retirada" onclick="openCaixaModal('saida')">
-                      <i class="ti ti-minus"></i> Retirada
-                    </button>
-                  </div>
-                  <div class="iph-caixa-hist">
-                    <div class="iph-caixa-hist-title">Últimas movimentações</div>
-                    <div id="iph-caixa-hist-list"></div>
-                  </div>
-                </div>
-
-                <!-- Recent transactions -->
-                <div class="iph-list-section">
-                  <div class="iph-list-header">
-                    <span class="iph-list-title">Lançamentos recentes</span>
-                    <div class="iph-filter-tabs">
-                      <button class="iph-filter-tab active" onclick="setIphFilter('all', this)">Todos</button>
-                      <button class="iph-filter-tab" onclick="setIphFilter('income', this)">Rec.</button>
-                      <button class="iph-filter-tab" onclick="setIphFilter('expense', this)">Desp.</button>
-                    </div>
-                  </div>
-                  <div class="iph-entry-list" id="iph-dash-list"></div>
-                </div>
-
-                <!-- spacer so last items visible above bottom bar -->
-                <div style="height:4px;flex-shrink:0;"></div>
-
-              </div><!-- /iph-content -->
-
-              <!-- Bottom action bar -->
-              <div class="iph-bottom-bar">
-                <button class="iph-btn-novo" onclick="openModal()">
-                  <i class="ti ti-plus"></i> Novo lançamento
-                </button>
-                <button class="iph-btn-add-cx" onclick="openCaixaModal('entrada')">
-                  <i class="ti ti-safe"></i> +
-                </button>
-                <button class="iph-btn-sub-cx" onclick="openCaixaModal('saida')">
-                  <i class="ti ti-safe"></i> −
-                </button>
-              </div>
-
-              <div class="iph-home-indicator"></div>
-
-            </div><!-- /iphone-screen -->
-          </div><!-- /iphone-body -->
-        </div><!-- /iphone-stage -->
-      </div><!-- /view-iphone -->
 
     </div>
   </div>
@@ -2080,6 +2417,92 @@
     <div class="modal-footer">
       <button class="btn-cancel" onclick="closeCaixaModal()">Cancelar</button>
       <button class="btn-save" id="caixa-btn-save" onclick="saveCaixaMov()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- CAIXA MÊS MODAL -->
+<div class="modal-overlay" id="caixa-mes-modal" onclick="if(event.target===this)closeCaixaMesModal()">
+  <div class="modal" style="width:400px;">
+    <div class="modal-title" id="caixa-mes-modal-title">Depósito no Caixa Mês</div>
+    <div class="form-group">
+      <label class="form-label" for="caixa-mes-f-desc">Descrição</label>
+      <input class="form-input" type="text" id="caixa-mes-f-desc" placeholder="Ex: Depósito mensal, Retirada para despesas...">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="caixa-mes-f-amount">Valor (R$)</label>
+      <input class="form-input" type="number" id="caixa-mes-f-amount" placeholder="0,00" min="0.01" step="0.01">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="caixa-mes-f-date">Data</label>
+      <input class="form-input" type="date" id="caixa-mes-f-date">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeCaixaMesModal()">Cancelar</button>
+      <button class="btn-save" id="caixa-mes-btn-save" onclick="saveCaixaMesMov()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TRANSFERÊNCIA MODAL -->
+<div class="modal-overlay" id="transferencia-modal" onclick="if(event.target===this)closeTransferenciaModal()">
+  <div class="modal" style="width:400px;">
+    <div class="modal-title">Transferência entre Caixas</div>
+    <div class="form-group">
+      <label class="form-label">Direção</label>
+      <div style="display:flex;gap:8px;">
+        <button id="tf-btn-in" class="btn-caixa-mes transfer-in" style="flex:1;padding:10px 8px;font-size:13px;" onclick="setTransferenciaDir('caixa-para-mes')">
+          <i class="ti ti-transfer-in"></i> Caixa → Caixa Mês
+        </button>
+        <button id="tf-btn-out" class="btn-caixa-mes transfer-out" style="flex:1;padding:10px 8px;font-size:13px;" onclick="setTransferenciaDir('mes-para-caixa')">
+          <i class="ti ti-transfer-out"></i> Caixa Mês → Caixa
+        </button>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="tf-f-desc">Descrição</label>
+      <input class="form-input" type="text" id="tf-f-desc" placeholder="Ex: Transferência mensal, Devolução...">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="tf-f-amount">Valor (R$)</label>
+      <input class="form-input" type="number" id="tf-f-amount" placeholder="0,00" min="0.01" step="0.01">
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="tf-f-date">Data</label>
+      <input class="form-input" type="date" id="tf-f-date">
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeTransferenciaModal()">Cancelar</button>
+      <button class="btn-save" onclick="saveTransferencia()">Confirmar Transferência</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- QUITAR MÊS MODAL -->
+<div class="modal-overlay" id="quitar-mes-modal" onclick="if(event.target===this)closeQuitarMesModal()">
+  <div class="modal" style="width:420px;">
+    <div class="modal-title"><i class="ti ti-circle-check" style="color:var(--green);margin-right:6px;"></i>Quitar Mês</div>
+    <div class="quitar-mes-info" id="quitar-mes-info">
+      <!-- preenchido via JS -->
+    </div>
+    <div id="quitar-mes-sobra-wrap" style="display:none;margin-bottom:16px;">
+      <div style="background:var(--blue-bg);border:1px solid #b5d4f4;border-radius:var(--r-md);padding:12px 14px;">
+        <div style="font-size:12px;font-weight:600;color:var(--blue-text);margin-bottom:4px;"><i class="ti ti-arrow-right-circle"></i> Sobra do mês</div>
+        <div style="font-size:12px;color:var(--blue-text);" id="quitar-mes-sobra-desc">O saldo restante será transferido automaticamente para o <strong>Caixa</strong> com descrição "Sobra do mês".</div>
+      </div>
+    </div>
+    <div id="quitar-mes-erro-wrap" style="display:none;margin-bottom:16px;">
+      <div style="background:var(--red-bg);border:1px solid #f3c9bb;border-radius:var(--r-md);padding:12px 14px;">
+        <div style="font-size:12px;font-weight:600;color:var(--red-text);margin-bottom:4px;"><i class="ti ti-alert-triangle"></i> Saldo insuficiente</div>
+        <div style="font-size:12px;color:var(--red-text);" id="quitar-mes-erro-desc"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-cancel" onclick="closeQuitarMesModal()">Cancelar</button>
+      <button class="btn-save" id="quitar-mes-btn-confirmar" onclick="confirmarQuitarMes()" style="background:var(--green);">
+        <i class="ti ti-circle-check"></i> Confirmar Quitação
+      </button>
     </div>
   </div>
 </div>
@@ -2341,13 +2764,41 @@ function totals(list) {
 function updateSidebar(t) {
   document.getElementById('sb-income').textContent = fmt(t.ti);
   document.getElementById('sb-expense').textContent = fmt(t.te);
-  const pct = Math.min(100, t.rate);
+
+  // Caixa Mês
+  const saldoMes = caixaMesSaldo();
+  const sbCaixaMes = document.getElementById('sb-caixa-mes');
+  if (sbCaixaMes) {
+    sbCaixaMes.textContent = fmt(saldoMes);
+    sbCaixaMes.style.color = saldoMes < 0 ? 'var(--red-text)' : 'var(--blue-text)';
+  }
+
+  // Barra de progresso baseada no Caixa Mês vs Despesas
+  const pctMes = t.te > 0 ? Math.min(100, Math.round(saldoMes / t.te * 100)) : 0;
   const bar = document.getElementById('sb-bar');
-  bar.style.width = pct + '%';
-  bar.className = 'progress-fill' + (pct >= 90 ? ' over' : '');
+  bar.style.width = Math.min(100, pctMes) + '%';
+  bar.className = 'progress-fill' + (pctMes < 60 ? ' over' : '');
+
+  // Verifica se o mês foi quitado (existe movimentação de quitação no mês atual)
+  const foiQuitado = caixaMesMovs.some(
+    m => m.month === curMonth && m.year === curYear &&
+         m.op === 'saida' && m.desc && m.desc.startsWith('Quitação de despesas')
+  );
+
   const balEl = document.getElementById('sb-balance');
-  balEl.textContent = 'Saldo: ' + (t.bal >= 0 ? '+' : '-') + fmt(t.bal);
-  balEl.className = 'summary-balance ' + (t.bal >= 0 ? 'positive' : 'negative');
+  if (foiQuitado) {
+    balEl.innerHTML = '<i class="ti ti-circle-check"></i> Mês Quitado';
+    balEl.className = 'summary-balance positive';
+    balEl.style.fontWeight = '700';
+    balEl.style.letterSpacing = '0.01em';
+  } else {
+    // Saldo = Caixa Mês - Despesas
+    const saldoReal = saldoMes - t.te;
+    balEl.textContent = 'Saldo: ' + (saldoReal >= 0 ? '+' : '') + fmt(saldoReal);
+    balEl.className = 'summary-balance ' + (saldoReal >= 0 ? 'positive' : 'negative');
+    balEl.style.fontWeight = '';
+    balEl.style.letterSpacing = '';
+  }
 }
 
 function updateMetrics(t) {
@@ -2362,17 +2813,6 @@ function updateMetrics(t) {
   document.getElementById('m-rate').textContent = t.rate + '%';
   document.getElementById('m-rate').className = 'metric-value ' + (t.rate > 100 ? 'red' : t.rate > 80 ? '' : 'green');
 
-  // ── iPhone mirror
-  document.getElementById('iph-m-income').textContent = fmt(t.ti);
-  document.getElementById('iph-m-income-sub').textContent = `F: ${fmt(t.fi)} · V: ${fmt(t.vi)}`;
-  document.getElementById('iph-m-expense').textContent = fmt(t.te);
-  document.getElementById('iph-m-expense-sub').textContent = `F: ${fmt(t.fe)} · V: ${fmt(t.ve)}`;
-  const iphBal = document.getElementById('iph-m-balance');
-  iphBal.textContent = fmt(t.bal);
-  iphBal.className = 'iph-metric-value ' + (t.bal >= 0 ? 'green' : 'red');
-  document.getElementById('iph-m-balance-sub').textContent = t.bal >= 0 ? '✓ Positivo' : '✗ Negativo';
-  document.getElementById('iph-m-rate').textContent = t.rate + '%';
-  document.getElementById('iph-m-rate').className = 'iph-metric-value ' + (t.rate > 100 ? 'red' : t.rate > 80 ? '' : 'green');
 }
 
 // ─── CAIXA ───────────────────────────────────────────────────────────────────
@@ -2411,18 +2851,12 @@ function renderCaixa() {
   document.getElementById('caixa-saldo').textContent = fmt(saldo);
   document.getElementById('caixa-saldo').style.color = saldo < 0 ? 'var(--red-text)' : '#7A5700';
 
-  // ── iPhone caixa saldo
-  document.getElementById('iph-caixa-saldo').textContent = fmt(saldo);
-  document.getElementById('iph-caixa-saldo').style.color = saldo < 0 ? 'var(--red-text)' : '#7A5700';
-
   const histEl = document.getElementById('caixa-hist-list');
   const resumoEl = document.getElementById('caixa-resumo-list');
-  const iphHistEl = document.getElementById('iph-caixa-hist-list');
 
   if (!caixaMovs.length) {
     histEl.innerHTML = '<div class="caixa-empty">Nenhuma movimentação ainda</div>';
     resumoEl.innerHTML = '<div class="caixa-empty" style="padding:32px 0">Nenhuma movimentação registrada no caixa</div>';
-    iphHistEl.innerHTML = '<div class="iph-empty" style="padding:12px 0;font-size:11px;">Nenhuma movimentação</div>';
     return;
   }
 
@@ -2463,24 +2897,16 @@ function renderCaixa() {
     </div>`;
   }).join('');
 
-  // ── iPhone history (compact, max 5 items)
-  iphHistEl.innerHTML = caixaMovs.slice(0, 5).map(m => {
-    const d = m.date ? m.date.split('-').reverse().join('/') : '—';
-    return `<div class="iph-caixa-mov ${m.op}">
-      <div class="iph-caixa-mov-icon"><i class="ti ${iconMap[m.op]}"></i></div>
-      <div class="iph-caixa-mov-info">
-        <div class="iph-caixa-mov-desc">${m.desc}</div>
-        <div class="iph-caixa-mov-date">${d}</div>
-      </div>
-      <div class="iph-caixa-mov-val">${signMap[m.op]}${fmt(m.amount)}</div>
-    </div>`;
-  }).join('');
 }
 
 // Modal caixa
 let caixaModalOp = 'entrada';
 
-function openCaixaModal(op) {
+async function openCaixaModal(op) {
+  // Atualiza dados do Google Sheets antes de abrir o modal
+  if (_gsUrl && _gsSid) {
+    await gsPull();
+  }
   caixaModalOp = op;
   const title = op === 'entrada' ? 'Adicionar ao caixa' : 'Retirada do caixa';
   document.getElementById('caixa-modal-title').textContent = title;
@@ -2528,6 +2954,276 @@ function saveCaixaMov() {
   const fullDesc = estabelecimento ? `${desc} — ${estabelecimento}` : desc;
   addCaixaMov(caixaModalOp, fullDesc, amount, date);
   closeCaixaModal();
+}
+
+// ─── CAIXA MÊS ──────────────────────────────────────────────────────────────
+// Movimentações são armazenadas com {id, op, desc, amount, date, month, year}
+// op: 'entrada' | 'saida' | 'transfer-in' | 'transfer-out'
+let caixaMesMovs = [];
+try { caixaMesMovs = JSON.parse(localStorage.getItem('finapp_caixa_mes') || '[]'); } catch(e) {}
+
+function persistCaixaMes() {
+  try { localStorage.setItem('finapp_caixa_mes', JSON.stringify(caixaMesMovs)); } catch(e) {}
+  localStorage.setItem('finapp_lastmod', new Date().toISOString());
+  if (typeof gsUpdateLastMod === 'function') gsUpdateLastMod();
+  if (typeof gsScheduleSync === 'function') gsScheduleSync();
+}
+
+function caixaMesSaldo() {
+  // Saldo do mês atual
+  return caixaMesMovs
+    .filter(m => m.month === curMonth && m.year === curYear)
+    .reduce((s, m) => {
+      if (m.op === 'saida' || m.op === 'transfer-out') return s - m.amount;
+      return s + m.amount;
+    }, 0);
+}
+
+function addCaixaMesMov(op, desc, amount, dateStr, month, year) {
+  const id = 'cm' + Date.now();
+  const m = month !== undefined ? month : curMonth;
+  const y = year  !== undefined ? year  : curYear;
+  caixaMesMovs.unshift({ id, op, desc, amount, date: dateStr || new Date().toISOString().slice(0,10), month: m, year: y });
+  persistCaixaMes();
+  renderCaixaMes();
+}
+
+function deleteCaixaMesMov(id) {
+  caixaMesMovs = caixaMesMovs.filter(m => m.id !== id);
+  persistCaixaMes();
+  renderCaixaMes();
+}
+
+function renderCaixaMes() {
+  const saldo = caixaMesSaldo();
+  const saldoEl = document.getElementById('caixa-mes-saldo');
+  const badgeEl = document.getElementById('caixa-mes-badge');
+  if (saldoEl) {
+    saldoEl.textContent = fmt(saldo);
+    saldoEl.style.color = saldo < 0 ? 'var(--red-text)' : 'var(--blue-text)';
+  }
+  if (badgeEl) badgeEl.textContent = MONTHS[curMonth].slice(0,3) + ' ' + curYear;
+
+  // Atualiza o item Caixa Mês e o Saldo no sidebar
+  const sbCaixaMes = document.getElementById('sb-caixa-mes');
+  if (sbCaixaMes) {
+    sbCaixaMes.textContent = fmt(saldo);
+    sbCaixaMes.style.color = saldo < 0 ? 'var(--red-text)' : 'var(--blue-text)';
+  }
+  const foiQuitado = caixaMesMovs.some(
+    m => m.month === curMonth && m.year === curYear &&
+         m.op === 'saida' && m.desc && m.desc.startsWith('Quitação de despesas')
+  );
+  const balEl = document.getElementById('sb-balance');
+  if (balEl) {
+    if (foiQuitado) {
+      balEl.innerHTML = '<i class="ti ti-circle-check"></i> Mês Quitado';
+      balEl.className = 'summary-balance positive';
+      balEl.style.fontWeight = '700';
+    } else {
+      // Recalcula saldo = caixa mês - despesas do mês
+      const te = Array.isArray(entries) ? entries.filter(e =>
+        e.type === 'expense' && e.month === curMonth && e.year === curYear
+      ).reduce((s,e) => s + e.amount, 0) : 0;
+      const saldoReal = saldo - te;
+      balEl.textContent = 'Saldo: ' + (saldoReal >= 0 ? '+' : '') + fmt(saldoReal);
+      balEl.className = 'summary-balance ' + (saldoReal >= 0 ? 'positive' : 'negative');
+      balEl.style.fontWeight = '';
+    }
+  }
+
+  const histEl = document.getElementById('caixa-mes-hist-list');
+  if (!histEl) return;
+
+  const movsMes = caixaMesMovs.filter(m => m.month === curMonth && m.year === curYear);
+  if (!movsMes.length) {
+    histEl.innerHTML = '<div class="caixa-empty">Nenhuma movimentação neste mês</div>';
+    return;
+  }
+  const iconMap = {
+    'entrada':      'ti-arrow-down-circle',
+    'saida':        'ti-arrow-up-circle',
+    'transfer-in':  'ti-transfer-in',
+    'transfer-out': 'ti-transfer-out',
+  };
+  const signMap = { 'entrada': '+', 'saida': '−', 'transfer-in': '+', 'transfer-out': '−' };
+  histEl.innerHTML = movsMes.slice(0, 30).map(m => {
+    const d = m.date ? m.date.split('-').reverse().join('/') : '—';
+    return `<div class="caixa-mes-mov ${m.op}">
+      <div class="caixa-mes-mov-icon"><i class="ti ${iconMap[m.op] || 'ti-circle'}"></i></div>
+      <div class="caixa-mes-mov-info">
+        <div class="caixa-mes-mov-desc">${m.desc}</div>
+        <div class="caixa-mes-mov-date">${d}</div>
+      </div>
+      <div class="caixa-mes-mov-val">${signMap[m.op]}${fmt(m.amount)}</div>
+      <button class="caixa-mes-mov-del" onclick="deleteCaixaMesMov('${m.id}')" title="Remover"><i class="ti ti-trash"></i></button>
+    </div>`;
+  }).join('');
+}
+
+// Modal Caixa Mês
+let caixaMesModalOp = 'entrada';
+
+function openCaixaMesModal(op) {
+  caixaMesModalOp = op;
+  const title = op === 'entrada' ? 'Depósito no Caixa Mês' : 'Retirada do Caixa Mês';
+  document.getElementById('caixa-mes-modal-title').textContent = title;
+  document.getElementById('caixa-mes-btn-save').textContent = op === 'entrada' ? 'Confirmar depósito' : 'Confirmar retirada';
+  document.getElementById('caixa-mes-f-desc').value = '';
+  document.getElementById('caixa-mes-f-amount').value = '';
+  const now2 = new Date();
+  document.getElementById('caixa-mes-f-date').value = `${now2.getFullYear()}-${String(now2.getMonth()+1).padStart(2,'0')}-${String(now2.getDate()).padStart(2,'0')}`;
+  document.getElementById('caixa-mes-modal').classList.add('open');
+  setTimeout(() => document.getElementById('caixa-mes-f-desc').focus(), 100);
+}
+
+function closeCaixaMesModal() {
+  document.getElementById('caixa-mes-modal').classList.remove('open');
+}
+
+function saveCaixaMesMov() {
+  const desc = document.getElementById('caixa-mes-f-desc').value.trim();
+  const amount = parseFloat(document.getElementById('caixa-mes-f-amount').value);
+  const date = document.getElementById('caixa-mes-f-date').value;
+  if (!desc) { document.getElementById('caixa-mes-f-desc').focus(); return; }
+  if (!amount || amount <= 0) { document.getElementById('caixa-mes-f-amount').focus(); return; }
+  addCaixaMesMov(caixaMesModalOp, desc, amount, date, curMonth, curYear);
+  closeCaixaMesModal();
+}
+
+// Modal de Transferência entre Caixa e Caixa Mês
+let transferenciaDir = 'caixa-para-mes';
+
+function openTransferenciaModal(dir) {
+  transferenciaDir = dir;
+  setTransferenciaDir(dir);
+  document.getElementById('tf-f-desc').value = '';
+  document.getElementById('tf-f-amount').value = '';
+  const now2 = new Date();
+  document.getElementById('tf-f-date').value = `${now2.getFullYear()}-${String(now2.getMonth()+1).padStart(2,'0')}-${String(now2.getDate()).padStart(2,'0')}`;
+  document.getElementById('transferencia-modal').classList.add('open');
+  setTimeout(() => document.getElementById('tf-f-desc').focus(), 100);
+}
+
+function closeTransferenciaModal() {
+  document.getElementById('transferencia-modal').classList.remove('open');
+}
+
+function setTransferenciaDir(dir) {
+  transferenciaDir = dir;
+  const btnIn  = document.getElementById('tf-btn-in');
+  const btnOut = document.getElementById('tf-btn-out');
+  if (btnIn && btnOut) {
+    btnIn.style.opacity  = dir === 'caixa-para-mes' ? '1' : '0.5';
+    btnOut.style.opacity = dir === 'mes-para-caixa' ? '1' : '0.5';
+    btnIn.style.fontWeight  = dir === 'caixa-para-mes' ? '700' : '400';
+    btnOut.style.fontWeight = dir === 'mes-para-caixa' ? '700' : '400';
+  }
+}
+
+function saveTransferencia() {
+  const desc = document.getElementById('tf-f-desc').value.trim();
+  const amount = parseFloat(document.getElementById('tf-f-amount').value);
+  const date = document.getElementById('tf-f-date').value;
+  if (!desc) { document.getElementById('tf-f-desc').focus(); return; }
+  if (!amount || amount <= 0) { document.getElementById('tf-f-amount').focus(); return; }
+
+  if (transferenciaDir === 'caixa-para-mes') {
+    // Sai do Caixa (saida) e entra no Caixa Mês (transfer-in)
+    addCaixaMov('saida', `Transferência → Caixa Mês: ${desc}`, amount, date);
+    addCaixaMesMov('transfer-in', `← Caixa: ${desc}`, amount, date, curMonth, curYear);
+  } else {
+    // Sai do Caixa Mês (transfer-out) e entra no Caixa (entrada)
+    addCaixaMesMov('transfer-out', `→ Caixa: ${desc}`, amount, date, curMonth, curYear);
+    addCaixaMov('entrada', `Transferência ← Caixa Mês: ${desc}`, amount, date);
+  }
+  closeTransferenciaModal();
+}
+
+// ─── QUITAR MÊS ──────────────────────────────────────────────────────────────
+function quitarMes() {
+  const saldoMes = caixaMesSaldo();
+  const totalDespesas = getMonthEntries()
+    .filter(e => e.type === 'expense')
+    .reduce((s, e) => s + e.amount, 0);
+
+  if (totalDespesas <= 0) {
+    alert('Não há despesas no mês atual para quitar.');
+    return;
+  }
+
+  const sobra = saldoMes - totalDespesas;
+  const infoEl = document.getElementById('quitar-mes-info');
+  const sobraWrap = document.getElementById('quitar-mes-sobra-wrap');
+  const erroWrap = document.getElementById('quitar-mes-erro-wrap');
+  const btnConfirmar = document.getElementById('quitar-mes-btn-confirmar');
+
+  infoEl.innerHTML = `
+    <div class="quitar-mes-row"><span>Saldo em Caixa Mês</span><span>${fmt(saldoMes)}</span></div>
+    <div class="quitar-mes-row"><span>Total de despesas do mês</span><span style="color:var(--red-text);">−${fmt(totalDespesas)}</span></div>
+    <div class="quitar-mes-divider"></div>
+    <div class="quitar-mes-row ${sobra >= 0 ? 'destaque' : 'alerta'}">
+      <span>${sobra >= 0 ? 'Sobra após quitação' : 'Déficit'}</span>
+      <span>${sobra >= 0 ? fmt(sobra) : '−' + fmt(Math.abs(sobra))}</span>
+    </div>
+  `;
+
+  if (sobra < 0) {
+    sobraWrap.style.display = 'none';
+    erroWrap.style.display = 'block';
+    document.getElementById('quitar-mes-erro-desc').innerHTML =
+      `O saldo de <strong>${fmt(saldoMes)}</strong> em Caixa Mês é insuficiente para cobrir as despesas de <strong>${fmt(totalDespesas)}</strong>. Faltam <strong>${fmt(Math.abs(sobra))}</strong>. Adicione mais saldo ao Caixa Mês antes de quitar.`;
+    btnConfirmar.disabled = true;
+    btnConfirmar.style.opacity = '0.5';
+    btnConfirmar.style.cursor = 'not-allowed';
+  } else {
+    erroWrap.style.display = 'none';
+    btnConfirmar.disabled = false;
+    btnConfirmar.style.opacity = '';
+    btnConfirmar.style.cursor = '';
+    if (sobra > 0) {
+      sobraWrap.style.display = 'block';
+      document.getElementById('quitar-mes-sobra-desc').innerHTML =
+        `O saldo restante de <strong>${fmt(sobra)}</strong> será transferido automaticamente para o <strong>Caixa</strong> com a descrição "Sobra do mês".`;
+    } else {
+      sobraWrap.style.display = 'none';
+    }
+  }
+
+  document.getElementById('quitar-mes-modal').classList.add('open');
+}
+
+function closeQuitarMesModal() {
+  document.getElementById('quitar-mes-modal').classList.remove('open');
+}
+
+function confirmarQuitarMes() {
+  const saldoMes = caixaMesSaldo();
+  const totalDespesas = getMonthEntries()
+    .filter(e => e.type === 'expense')
+    .reduce((s, e) => s + e.amount, 0);
+
+  if (totalDespesas <= 0) { closeQuitarMesModal(); return; }
+  if (saldoMes < totalDespesas) { closeQuitarMesModal(); return; }
+
+  const hoje = new Date();
+  const dateStr = `${hoje.getFullYear()}-${String(hoje.getMonth()+1).padStart(2,'0')}-${String(hoje.getDate()).padStart(2,'0')}`;
+  const mesNome = MONTHS[curMonth] + ' ' + curYear;
+
+  // Debitar as despesas do Caixa Mês como saída
+  addCaixaMesMov('saida', `Quitação de despesas — ${mesNome}`, totalDespesas, dateStr, curMonth, curYear);
+
+  // Se sobrou saldo, transferir para Caixa
+  const sobra = saldoMes - totalDespesas;
+  if (sobra > 0) {
+    // Retirar sobra do Caixa Mês
+    addCaixaMesMov('transfer-out', `Sobra do mês → Caixa (${mesNome})`, sobra, dateStr, curMonth, curYear);
+    // Depositar sobra no Caixa
+    addCaixaMov('entrada', `Sobra do mês — ${mesNome}`, sobra, dateStr);
+  }
+
+  closeQuitarMesModal();
+  renderAll();
 }
 
 // ─── AI PARA CAIXA (voz + imagem) ────────────────────────────────────────────
@@ -2725,14 +3421,83 @@ function freqBadgeSm(freq, type) {
     : `<span class="badge-sm badge-variable">Variável</span>`;
 }
 
+function renderEntriesFixedBoxes() {
+  // Despesas fixas + apenas faturas consolidadas de cartão (não lançamentos individuais)
+  const isFaturaConsolidada = e => e.cat === 'Cartão' && e.name && e.name.startsWith('Fatura ');
+  const allExp = getMonthEntries().filter(e => e.type === 'expense');
+  const fixedExp = allExp.filter(e => e.freq === 'fixed' || isFaturaConsolidada(e));
+  const totalFE = fixedExp.reduce((s,e) => s + e.amount, 0);
+  const expTotEl = document.getElementById('entries-fixed-exp-total');
+  const expListEl = document.getElementById('entries-fixed-exp-list');
+  if (expTotEl) expTotEl.textContent = '−' + fmt(totalFE);
+  if (expListEl) {
+    if (!fixedExp.length) {
+      expListEl.innerHTML = '<div class="fixed-box-empty">Nenhuma despesa fixa</div>';
+    } else {
+      const sorted = fixedExp.slice().sort((a,b) => b.amount - a.amount);
+      expListEl.innerHTML = sorted.map(e => {
+        const icon = CAT_ICONS[e.cat] || 'ti-package';
+        const color = CAT_COLORS[e.cat] || '#888780';
+        const isCC = isFaturaConsolidada(e);
+        const tagIcon = isCC ? 'ti-credit-card' : icon;
+        return `<div class="fixed-box-row">
+          <div class="fixed-box-icon" style="background:${color}22;color:${color};"><i class="ti ${tagIcon}"></i></div>
+          <div style="flex:1;min-width:0;">
+            <div class="fixed-box-name">${e.name}</div>
+            <div class="fixed-box-cat">${e.cat}${isCC ? ' · Fatura' : ' · Fixo'}</div>
+          </div>
+          <span class="fixed-box-amount expense">−${fmt(e.amount)}</span>
+          <div class="fixed-box-act">
+            <button class="fixed-box-btn edit" onclick="openEditModal('${e.id}')" title="Editar"><i class="ti ti-pencil"></i></button>
+            <button class="fixed-box-btn del"  onclick="deleteEntry('${e.id}')"   title="Excluir"><i class="ti ti-trash"></i></button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+
+  // Receitas fixas
+  const fixedInc = getMonthEntries().filter(e => e.type === 'income' && e.freq === 'fixed');
+  const totalFI = fixedInc.reduce((s,e) => s + e.amount, 0);
+  const incTotEl = document.getElementById('entries-fixed-inc-total');
+  const incListEl = document.getElementById('entries-fixed-inc-list');
+  if (incTotEl) incTotEl.textContent = '+' + fmt(totalFI);
+  if (incListEl) {
+    if (!fixedInc.length) {
+      incListEl.innerHTML = '<div class="fixed-box-empty">Nenhuma receita fixa</div>';
+    } else {
+      const sorted = fixedInc.slice().sort((a,b) => b.amount - a.amount);
+      incListEl.innerHTML = sorted.map(e => {
+        const icon = CAT_ICONS[e.cat] || 'ti-package';
+        const color = CAT_COLORS[e.cat] || '#1D9E75';
+        return `<div class="fixed-box-row">
+          <div class="fixed-box-icon" style="background:${color}22;color:${color};"><i class="ti ${icon}"></i></div>
+          <div style="flex:1;min-width:0;">
+            <div class="fixed-box-name">${e.name}</div>
+            <div class="fixed-box-cat">${e.cat} · Fixo</div>
+          </div>
+          <span class="fixed-box-amount income">+${fmt(e.amount)}</span>
+          <div class="fixed-box-act">
+            <button class="fixed-box-btn edit" onclick="openEditModal('${e.id}')" title="Editar"><i class="ti ti-pencil"></i></button>
+            <button class="fixed-box-btn del"  onclick="deleteEntry('${e.id}')"   title="Excluir"><i class="ti ti-trash"></i></button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+  }
+}
+
 function renderPanels() {
   const list = getMonthEntries().sort((a,b) => (a.day||1) - (b.day||1));
-  const expenses = list.filter(e => e.type === 'expense');
-  const incomes  = list.filter(e => e.type === 'income');
+  // Despesas: excluir fixas e faturas consolidadas (exibidas nas caixas fixas do topo)
+  // Lançamentos individuais de cartão aparecem normalmente na tabela
+  const isFaturaConsolidada = e => e.cat === 'Cartão' && e.name && e.name.startsWith('Fatura ');
+  const expenses = list.filter(e => e.type === 'expense' && e.freq !== 'fixed' && !isFaturaConsolidada(e));
+  const incomes  = list.filter(e => e.type === 'income'  && e.freq !== 'fixed');
 
-  // Totals
-  const totalExp = expenses.reduce((s,e) => s + e.amount, 0);
-  const totalInc = incomes.reduce((s,e)  => s + e.amount, 0);
+  // Totals (todos, para o header)
+  const totalExp = list.filter(e => e.type === 'expense').reduce((s,e) => s + e.amount, 0);
+  const totalInc = list.filter(e => e.type === 'income').reduce((s,e)  => s + e.amount, 0);
   document.getElementById('panel-total-expense').textContent = fmt(totalExp);
   document.getElementById('panel-total-income').textContent  = fmt(totalInc);
 
@@ -2742,6 +3507,7 @@ function renderPanels() {
   if (expenses.length === 0) {
     expTbody.innerHTML = '';
     expEmpty.style.display = 'block';
+    expEmpty.innerHTML = '<i class="ti ti-inbox"></i> Nenhuma despesa variável</div>';
   } else {
     expEmpty.style.display = 'none';
     // Group by category
@@ -2793,6 +3559,7 @@ function renderPanels() {
   if (incomes.length === 0) {
     incTbody.innerHTML = '';
     incEmpty.style.display = 'block';
+    incEmpty.innerHTML = '<i class="ti ti-inbox"></i> Nenhuma receita variável';
   } else {
     incEmpty.style.display = 'none';
     incTbody.innerHTML = incomes.map(e => {
@@ -2813,7 +3580,25 @@ function renderPanels() {
 }
 
 function renderList(containerId, filter) {
-  const list = applyFilter(getMonthEntries(), filter).sort((a,b) => (a.day||1) - (b.day||1));
+  // Remove despesas fixas e faturas consolidadas — já exibidas em "Despesas Fixas"
+  // Lançamentos individuais de cartão (cat Santander/Nubank/Itaú) aparecem aqui normalmente
+  const isFaturaConsolidada = e => e.cat === 'Cartão' && e.name && e.name.startsWith('Fatura ');
+  let list = applyFilter(getMonthEntries(), filter).filter(e => {
+    if (e.type === 'expense' && (e.freq === 'fixed' || isFaturaConsolidada(e))) return false;
+    return true;
+  });
+  // Despesas variáveis ordenadas por timestamp de lançamento (mais recente primeiro)
+  // Receitas ordenadas por dia do mês
+  list = list.sort((a, b) => {
+    const aIsVar = a.type === 'expense' && a.freq !== 'fixed';
+    const bIsVar = b.type === 'expense' && b.freq !== 'fixed';
+    if (aIsVar && bIsVar) {
+      // ambas variáveis: ordena por createdAt desc (data de lançamento)
+      return (b.createdAt || 0) - (a.createdAt || 0);
+    }
+    // demais: ordena por dia do mês
+    return (a.day || 1) - (b.day || 1);
+  });
   const el = document.getElementById(containerId);
   if (!list.length) {
     el.innerHTML = `<div class="empty"><i class="ti ti-inbox"></i>Nenhum lançamento encontrado.</div>`;
@@ -2821,6 +3606,41 @@ function renderList(containerId, filter) {
     el.innerHTML = list.map(entryHTML).join('');
   }
 }
+
+function renderFixedExpenses() {
+  const isFaturaConsolidada = e => e.cat === 'Cartão' && e.name && e.name.startsWith('Fatura ');
+  const list = getMonthEntries().filter(e => e.type === 'expense' && (e.freq === 'fixed' || isFaturaConsolidada(e)));
+  const el = document.getElementById('dash-fixed-list');
+  const totalEl = document.getElementById('dash-fixed-total');
+  if (!el) return;
+
+  const total = list.reduce((s, e) => s + e.amount, 0);
+  if (totalEl) totalEl.textContent = '−' + fmt(total);
+
+  if (!list.length) {
+    el.innerHTML = `<div class="empty" style="padding:24px;"><i class="ti ti-pin-off"></i>Nenhuma despesa fixa neste mês.</div>`;
+    return;
+  }
+
+  // Ordenado por valor desc
+  const sorted = list.slice().sort((a, b) => b.amount - a.amount);
+  el.innerHTML = sorted.map(e => {
+    const icon = CAT_ICONS[e.cat] || 'ti-package';
+    const color = CAT_COLORS[e.cat] || '#888780';
+    const iconBg = color + '22';
+    return `<div class="entry-row" style="padding:9px 12px;">
+      <div class="entry-icon" style="background:${iconBg};color:${color};width:32px;height:32px;font-size:14px;"><i class="ti ${icon}"></i></div>
+      <div class="entry-info">
+        <div class="entry-name" style="font-size:12px;">${e.name}</div>
+        <div class="entry-meta" style="font-size:10px;">${e.cat}</div>
+      </div>
+      <span class="entry-amount expense" style="font-size:13px;">−${fmt(e.amount)}</span>
+      <button class="edit-btn" onclick="openEditModal('${e.id}')" style="width:24px;height:24px;font-size:13px;" aria-label="Editar"><i class="ti ti-pencil"></i></button>
+      <button class="del-btn" onclick="deleteEntry('${e.id}')" style="width:24px;height:24px;font-size:13px;" aria-label="Remover"><i class="ti ti-trash"></i></button>
+    </div>`;
+  }).join('');
+}
+
 
 function renderAll() {
   const list = getMonthEntries();
@@ -2830,11 +3650,14 @@ function renderAll() {
   renderList('dash-list', dashFilter);
   renderPanels();
   renderCaixa();
-  renderIphList();
+  renderCaixaMes();
+  renderFixedExpenses();
+  renderEntriesFixedBoxes();
   const monthStr = MONTHS[curMonth] + ' ' + curYear;
   document.getElementById('month-label').textContent = MONTHS[curMonth].slice(0,3) + ' ' + curYear;
   document.getElementById('topbar-month').textContent = monthStr;
-  document.getElementById('iph-month').textContent = MONTHS[curMonth].slice(0,3) + ' ' + curYear;
+  const mobLabel = document.getElementById('mob-month-label');
+  if (mobLabel) mobLabel.textContent = MONTHS[curMonth].slice(0,3) + ' ' + curYear;
 }
 
 function setFilter(f, btn, view) {
@@ -2891,60 +3714,8 @@ function showView(view, btn) {
   } else if (view === 'entries') {
     document.getElementById('view-title').textContent = 'Lançamentos do mês';
     renderPanels();
-  } else if (view === 'iphone') {
-    document.getElementById('view-title').textContent = 'Visualização iPhone';
-    updateIphClock();
   }
 }
-
-// ─────────────────────────────────────────────
-// IPHONE VIEW HELPERS
-// ─────────────────────────────────────────────
-let iphFilter = 'all';
-
-function setIphFilter(f, btn) {
-  iphFilter = f;
-  btn.closest('.iph-filter-tabs').querySelectorAll('.iph-filter-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderIphList();
-}
-
-function renderIphList() {
-  const list = applyFilter(getMonthEntries(), iphFilter).sort((a,b) => (b.day||1) - (a.day||1));
-  const el = document.getElementById('iph-dash-list');
-  if (!list.length) {
-    el.innerHTML = `<div class="iph-empty"><i class="ti ti-inbox"></i>Nenhum lançamento encontrado.</div>`;
-    return;
-  }
-  el.innerHTML = list.slice(0, 20).map(e => {
-    const isIncome = e.type === 'income';
-    const icon = isIncome ? 'ti-trending-up' : (CAT_ICONS[e.cat] || 'ti-package');
-    const iconBg = isIncome ? '#EAF3DE' : (CAT_COLORS[e.cat] ? CAT_COLORS[e.cat] + '22' : '#f1f1ee');
-    const iconColor = isIncome ? '#1D9E75' : (CAT_COLORS[e.cat] || '#888780');
-    const meta = (isIncome ? 'Receita' : e.cat) + (e.day ? ` · dia ${e.day}` : '');
-    return `<div class="iph-entry-row">
-      <div class="iph-entry-icon" style="background:${iconBg};color:${iconColor}"><i class="ti ${icon}"></i></div>
-      <div class="iph-entry-info">
-        <div class="iph-entry-name">${e.name}</div>
-        <div class="iph-entry-meta">${meta}</div>
-      </div>
-      <span class="iph-entry-amount ${isIncome ? 'income' : 'expense'}">${isIncome ? '+' : '−'}${fmt(e.amount)}</span>
-      <button class="iph-entry-del" onclick="deleteEntry('${e.id}')" title="Remover"><i class="ti ti-trash"></i></button>
-    </div>`;
-  }).join('');
-}
-
-function updateIphClock() {
-  const now2 = new Date();
-  const h = String(now2.getHours()).padStart(2,'0');
-  const m = String(now2.getMinutes()).padStart(2,'0');
-  const el = document.getElementById('iph-clock');
-  if (el) el.textContent = h + ':' + m;
-}
-
-// Update clock every minute
-setInterval(updateIphClock, 60000);
-updateIphClock();
 
 function onCatChange(val) {
   // Nada especial por ora, mas poderíamos mostrar dicas específicas
@@ -3009,7 +3780,11 @@ function _defaultDate() {
   return `${curYear}-${String(curMonth+1).padStart(2,'0')}-${d}`;
 }
 
-function openModal() {
+async function openModal() {
+  // Atualiza dados do Google Sheets antes de abrir o modal
+  if (_gsUrl && _gsSid) {
+    await gsPull();
+  }
   editingId = null;
   document.getElementById('modal-title').textContent = 'Novo lançamento';
   document.getElementById('btn-save').textContent = 'Salvar lançamento';
@@ -3140,7 +3915,7 @@ function saveEntry() {
       if (isCardCat) updateCardFatura(cat, parcelaAmt, m, y);
     }
   } else {
-    entries.push({ id: Date.now().toString(), name: fullName, amount: parseFloat(amount.toFixed(2)), type: curType, freq, cat, estabelecimento, month: startMonth, year: startYear, day: entryDay });
+    entries.push({ id: Date.now().toString(), name: fullName, amount: parseFloat(amount.toFixed(2)), type: curType, freq, cat, estabelecimento, month: startMonth, year: startYear, day: entryDay, createdAt: Date.now() });
     // Atualiza fatura do cartão se necessário
     if (isCardCat && curType === 'expense') {
       updateCardFatura(cat, parseFloat(amount.toFixed(2)), startMonth, startYear);
@@ -3630,18 +4405,6 @@ function isSmartphone() {
   const byUA = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   const byWidth = window.innerWidth <= 820;
   return byUA || byWidth;
-}
-
-if (isSmartphone()) {
-  // Ativa a aba iPhone automaticamente na primeira abertura em celular
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.getElementById('view-iphone').classList.add('active');
-  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
-  // iPhone é o 3º nav-item (índice 2)
-  const iphNav = document.querySelectorAll('.nav-item')[2];
-  if (iphNav) iphNav.classList.add('active');
-  document.getElementById('view-title').textContent = 'Visualização iPhone';
-  updateIphClock();
 }</script>
 
 <!-- ═══════════════════════════════════════════
@@ -3658,9 +4421,8 @@ if (isSmartphone()) {
 
   /* ── Barra GS elevada em smartphones ── */
   @media (max-width: 820px) {
-    body { padding-bottom: 80px; }
     #gs-bar {
-      bottom: 20px;
+      bottom: 76px;
       left: 12px;
       right: 12px;
       border-radius: 14px;
@@ -3846,7 +4608,7 @@ async function gsPush() {
   _gsBusy = true;
   gsDot('busy', 'Sincronizando...');
   try {
-    const payload = { entries, caixa: caixaMovs };
+    const payload = { entries, caixa: caixaMovs, caixaMes: caixaMesMovs };
     const r = await fetch(_gsUrl + '?method=write&sheetId=' + encodeURIComponent(_gsSid), {
       method: 'POST',
       headers: { 'Content-Type': 'text/plain' },
@@ -3885,8 +4647,10 @@ async function gsPull() {
       // Novo formato com caixa
       entries = remote.entries || [];
       caixaMovs = remote.caixa || [];
+      caixaMesMovs = remote.caixaMes || [];
       try { localStorage.setItem('finapp_entries', JSON.stringify(entries)); } catch(e) {}
       try { localStorage.setItem('finapp_caixa', JSON.stringify(caixaMovs)); } catch(e) {}
+      try { localStorage.setItem('finapp_caixa_mes', JSON.stringify(caixaMesMovs)); } catch(e) {}
       try { localStorage.setItem('finapp_lastmod', new Date().toISOString()); } catch(e) {}
       renderAll();
       gsUpdateLastMod();

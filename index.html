@@ -2724,6 +2724,33 @@ let pieChart = null, barChart = null; // kept for compatibility
 let entries = [];
 try { entries = JSON.parse(localStorage.getItem('finapp_entries') || '[]'); } catch(e) {}
 
+// ── Migração retroativa ────────────────────────────────────────────────────
+// Garante que todos os lançamentos existentes tenham createdAt.
+// Usa o campo 'id' como fallback (salvo via Date.now() na criação original).
+// Também garante que categorias de cartão (Santander/Nubank/Itaú) não fiquem
+// como 'fixed', pois devem aparecer apenas em variáveis.
+(function migrateEntries() {
+  let changed = false;
+  entries = entries.map(e => {
+    const updates = {};
+    // 1. Adiciona createdAt se faltando
+    if (!e.createdAt) {
+      const ts = parseInt(e.id);
+      updates.createdAt = (!isNaN(ts) && ts > 1000000000000) ? ts : Date.now();
+      changed = true;
+    }
+    // 2. Cartões individuais (Santander/Nubank/Itaú) nunca devem ser 'fixed'
+    if (['Cartão Santander','Cartão Nubank','Cartão Itaú'].includes(e.cat) && e.freq === 'fixed') {
+      updates.freq = 'variable';
+      changed = true;
+    }
+    return Object.keys(updates).length ? { ...e, ...updates } : e;
+  });
+  if (changed) {
+    try { localStorage.setItem('finapp_entries', JSON.stringify(entries)); } catch(err) {}
+  }
+})();
+
 function persist() {
   try {
     localStorage.setItem('finapp_entries', JSON.stringify(entries));
@@ -3423,9 +3450,13 @@ function freqBadgeSm(freq, type) {
 
 function renderEntriesFixedBoxes() {
   // Despesas fixas + apenas faturas consolidadas de cartão (não lançamentos individuais)
+  // Categorias de cartão (Santander/Nubank/Itaú) NÃO entram nas fixas — aparecem só em variáveis
   const isFaturaConsolidada = e => e.cat === 'Cartão' && e.name && e.name.startsWith('Fatura ');
+  const isCartaoIndividual  = e => CARD_CATS.has(e.cat);
   const allExp = getMonthEntries().filter(e => e.type === 'expense');
-  const fixedExp = allExp.filter(e => e.freq === 'fixed' || isFaturaConsolidada(e));
+  const fixedExp = allExp.filter(e =>
+    (e.freq === 'fixed' || isFaturaConsolidada(e)) && !isCartaoIndividual(e)
+  );
   const totalFE = fixedExp.reduce((s,e) => s + e.amount, 0);
   const expTotEl = document.getElementById('entries-fixed-exp-total');
   const expListEl = document.getElementById('entries-fixed-exp-list');
@@ -3488,7 +3519,13 @@ function renderEntriesFixedBoxes() {
 }
 
 function renderPanels() {
-  const list = getMonthEntries().sort((a,b) => (a.day||1) - (b.day||1));
+  // Ordena por data/hora de lançamento (mais recente primeiro)
+  const byCreatedAt = (a, b) => {
+    const tA = a.createdAt || parseInt(a.id) || 0;
+    const tB = b.createdAt || parseInt(b.id) || 0;
+    return tB - tA;
+  };
+  const list = getMonthEntries().slice().sort(byCreatedAt);
   // Despesas: excluir fixas e faturas consolidadas (exibidas nas caixas fixas do topo)
   // Lançamentos individuais de cartão aparecem normalmente na tabela
   const isFaturaConsolidada = e => e.cat === 'Cartão' && e.name && e.name.startsWith('Fatura ');
@@ -3501,7 +3538,7 @@ function renderPanels() {
   document.getElementById('panel-total-expense').textContent = fmt(totalExp);
   document.getElementById('panel-total-income').textContent  = fmt(totalInc);
 
-  // Expenses table — grouped by category
+  // Expenses table — ordenado por data/hora de lançamento (mais recente primeiro)
   const expTbody = document.getElementById('expense-tbody');
   const expEmpty = document.getElementById('expense-empty');
   if (expenses.length === 0) {
@@ -3510,45 +3547,26 @@ function renderPanels() {
     expEmpty.innerHTML = '<i class="ti ti-inbox"></i> Nenhuma despesa variável</div>';
   } else {
     expEmpty.style.display = 'none';
-    // Group by category
-    const groups = {};
-    expenses.forEach(e => {
-      const g = e.cat || 'Outros';
-      if (!groups[g]) groups[g] = [];
-      groups[g].push(e);
-    });
-    // Sort groups by total desc
-    const sortedGroups = Object.entries(groups).sort((a,b) =>
-      b[1].reduce((s,e)=>s+e.amount,0) - a[1].reduce((s,e)=>s+e.amount,0)
-    );
     let html = '';
-    sortedGroups.forEach(([groupName, items]) => {
-      const groupTotal = items.reduce((s,e)=>s+e.amount,0);
-      const catColor = CAT_COLORS[groupName] || '#888780';
-      const catIcon = CAT_ICONS[groupName] || 'ti-package';
-      html += `<tr class="cat-group-header">
-        <td colspan="6" style="padding:6px 10px 4px;background:${catColor}18;border-top:2px solid ${catColor}44;">
-          <div style="display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:${catColor};text-transform:uppercase;letter-spacing:0.05em;">
-            <i class="ti ${catIcon}" style="font-size:13px;"></i>
-            ${groupName}
-            <span style="margin-left:auto;font-size:12px;">−${fmt(groupTotal)}</span>
-          </div>
+    expenses.forEach(e => {
+      const dayStr = e.day ? String(e.day).padStart(2,'0') + '/' : '';
+      const dateStr = dayStr + String(e.month+1).padStart(2,'0') + '/' + String(e.year).slice(2);
+      // Mostra hora do lançamento se disponível
+      const ts = e.createdAt || parseInt(e.id) || null;
+      const horaStr = ts ? new Date(ts).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+      const dataHoraStr = horaStr ? `${dateStr} ${horaStr}` : dateStr;
+      const icon = CAT_ICONS[e.cat] || 'ti-package';
+      const color = CAT_COLORS[e.cat] || '#888780';
+      html += `<tr data-id="${e.id}">
+        <td class="td-name" title="${e.name}">${e.name}</td>
+        <td class="td-date" title="Lançado em ${dataHoraStr}">${dataHoraStr}</td>
+        <td>${freqBadgeSm(e.freq, e.type)}</td>
+        <td class="col-amount expense">−${fmt(e.amount)}</td>
+        <td class="col-actions">
+          <button class="act-btn edit" onclick="openEditModal('${e.id}')" title="Editar"><i class="ti ti-pencil"></i></button>
+          <button class="act-btn del"  onclick="deleteEntry('${e.id}')"   title="Excluir"><i class="ti ti-trash"></i></button>
         </td>
       </tr>`;
-      items.forEach(e => {
-        const dayStr = e.day ? String(e.day).padStart(2,'0') + '/' : '';
-        const dateStr = dayStr + String(e.month+1).padStart(2,'0') + '/' + String(e.year).slice(2);
-        html += `<tr data-id="${e.id}">
-          <td class="td-name" title="${e.name}">${e.name}</td>
-          <td class="td-date">${dateStr}</td>
-          <td>${freqBadgeSm(e.freq, e.type)}</td>
-          <td class="col-amount expense">−${fmt(e.amount)}</td>
-          <td class="col-actions">
-            <button class="act-btn edit" onclick="openEditModal('${e.id}')" title="Editar"><i class="ti ti-pencil"></i></button>
-            <button class="act-btn del"  onclick="deleteEntry('${e.id}')"   title="Excluir"><i class="ti ti-trash"></i></button>
-          </td>
-        </tr>`;
-      });
     });
     expTbody.innerHTML = html;
   }
@@ -3587,17 +3605,12 @@ function renderList(containerId, filter) {
     if (e.type === 'expense' && (e.freq === 'fixed' || isFaturaConsolidada(e))) return false;
     return true;
   });
-  // Despesas variáveis ordenadas por timestamp de lançamento (mais recente primeiro)
-  // Receitas ordenadas por dia do mês
+  // Ordena por data/hora exata de lançamento (mais recente primeiro)
+  // Usa createdAt se disponível; senão cai para o id numérico (Date.now() no momento da criação)
   list = list.sort((a, b) => {
-    const aIsVar = a.type === 'expense' && a.freq !== 'fixed';
-    const bIsVar = b.type === 'expense' && b.freq !== 'fixed';
-    if (aIsVar && bIsVar) {
-      // ambas variáveis: ordena por createdAt desc (data de lançamento)
-      return (b.createdAt || 0) - (a.createdAt || 0);
-    }
-    // demais: ordena por dia do mês
-    return (a.day || 1) - (b.day || 1);
+    const tA = a.createdAt || parseInt(a.id) || 0;
+    const tB = b.createdAt || parseInt(b.id) || 0;
+    return tB - tA;
   });
   const el = document.getElementById(containerId);
   if (!list.length) {
@@ -3608,8 +3621,14 @@ function renderList(containerId, filter) {
 }
 
 function renderFixedExpenses() {
+  // Categorias de cartão (Santander/Nubank/Itaú) NÃO entram nas fixas — aparecem só em variáveis
   const isFaturaConsolidada = e => e.cat === 'Cartão' && e.name && e.name.startsWith('Fatura ');
-  const list = getMonthEntries().filter(e => e.type === 'expense' && (e.freq === 'fixed' || isFaturaConsolidada(e)));
+  const isCartaoIndividual  = e => CARD_CATS.has(e.cat);
+  const list = getMonthEntries().filter(e =>
+    e.type === 'expense' &&
+    (e.freq === 'fixed' || isFaturaConsolidada(e)) &&
+    !isCartaoIndividual(e)
+  );
   const el = document.getElementById('dash-fixed-list');
   const totalEl = document.getElementById('dash-fixed-total');
   if (!el) return;
@@ -3879,7 +3898,7 @@ function saveEntry() {
           }
         }
       }
-      entries[idx] = { ...old, name: fullName, amount: parseFloat(amount.toFixed(2)), type: curType, freq, cat, estabelecimento, month: startMonth, year: startYear, day: entryDay };
+      entries[idx] = { ...old, name: fullName, amount: parseFloat(amount.toFixed(2)), type: curType, freq, cat, estabelecimento, month: startMonth, year: startYear, day: entryDay, createdAt: old.createdAt || parseInt(old.id) || Date.now() };
       // Aplica novo impacto na fatura se nova categoria é cartão
       if (curType === 'expense' && CARD_FATURA_MAP[cat]) {
         updateCardFatura(cat, parseFloat(amount.toFixed(2)), startMonth, startYear);
@@ -3894,6 +3913,8 @@ function saveEntry() {
   // Modo criação
   // Se for cartão de crédito, atualiza a fatura existente E cria lançamento detalhado
   const isCardCat = ['Cartão Santander','Cartão Nubank','Cartão Itaú'].includes(cat);
+  // Cartões individuais SEMPRE são variáveis (nunca fixos)
+  const freqFinal = isCardCat ? 'variable' : freq;
 
   if (freq === 'installment') {
     const totalParcelas = parseInt(document.getElementById('f-installments').value);
@@ -3910,12 +3931,13 @@ function saveEntry() {
         id: groupId + '_' + i,
         name: parcelaName,
         amount: parcelaAmt,
-        type: curType, freq: 'installment', cat, estabelecimento, month: m, year: y, day: entryDay, groupId
+        type: curType, freq: freqFinal === 'variable' ? 'variable' : 'installment', cat, estabelecimento, month: m, year: y, day: entryDay, groupId,
+        createdAt: Date.now() + i   // garante ordem de inserção única por parcela
       });
       if (isCardCat) updateCardFatura(cat, parcelaAmt, m, y);
     }
   } else {
-    entries.push({ id: Date.now().toString(), name: fullName, amount: parseFloat(amount.toFixed(2)), type: curType, freq, cat, estabelecimento, month: startMonth, year: startYear, day: entryDay, createdAt: Date.now() });
+    entries.push({ id: Date.now().toString(), name: fullName, amount: parseFloat(amount.toFixed(2)), type: curType, freq: freqFinal, cat, estabelecimento, month: startMonth, year: startYear, day: entryDay, createdAt: Date.now() });
     // Atualiza fatura do cartão se necessário
     if (isCardCat && curType === 'expense') {
       updateCardFatura(cat, parseFloat(amount.toFixed(2)), startMonth, startYear);

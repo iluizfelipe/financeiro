@@ -1355,6 +1355,34 @@
     .metric-card { padding: 12px 14px; }
     .metric-value { font-size: 18px; }
 
+    /* ── Barra de resumo do dashboard: 2x2 no mobile ── */
+    .dash-summary-bar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .dash-summary-item {
+      padding: 11px 14px;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* Remove border-bottom da segunda linha */
+    .dash-summary-item:nth-child(3),
+    .dash-summary-item:nth-child(4) {
+      border-bottom: none;
+    }
+
+    /* Remove border-right das colunas da direita */
+    .dash-summary-item:nth-child(2),
+    .dash-summary-item:nth-child(4) {
+      border-right: none;
+    }
+
+    .dash-summary-value { font-size: 17px; }
+    .dash-summary-label { font-size: 10px; }
+    .dash-summary-balance { font-size: 12px; padding: 4px 8px; margin-top: 4px; }
+
     /* ── Charts row: coluna única ── */
     .charts-row {
       grid-template-columns: 1fr;

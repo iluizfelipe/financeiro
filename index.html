@@ -284,6 +284,88 @@
   .metric-value.red { color: var(--red); }
   .metric-sub { font-size: 11px; color: var(--text3); margin-top: 4px; }
 
+  /* DASHBOARD SUMMARY BAR (substitui metrics-grid e sidebar-summary) */
+  .dash-summary-bar {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    display: flex;
+    align-items: stretch;
+    overflow: hidden;
+  }
+
+  .dash-summary-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 14px 20px;
+    border-right: 1px solid var(--border);
+    min-width: 0;
+  }
+
+  .dash-summary-item:last-child { border-right: none; }
+
+  .dash-summary-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text3);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .dash-summary-label i { font-size: 13px; }
+
+  .dash-summary-value {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .dash-summary-value.green { color: var(--green); }
+  .dash-summary-value.red   { color: var(--red);   }
+
+  /* Barra de progresso embutida na última célula */
+  .dash-summary-item-balance {
+    flex: 1.2;
+  }
+
+  .dash-summary-progress {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+    margin-top: 6px;
+  }
+
+  .dash-summary-progress-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--green);
+    transition: width 0.4s ease;
+  }
+
+  .dash-summary-progress-fill.over { background: var(--red); }
+
+  .dash-summary-balance {
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 10px;
+    border-radius: var(--r-md);
+    margin-top: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .dash-summary-balance.positive { background: var(--green-bg); color: var(--green-text); }
+  .dash-summary-balance.negative { background: var(--red-bg);   color: var(--red-text);   }
+
   /* CHARTS */
   .charts-row {
     display: grid;
@@ -2084,13 +2166,6 @@
       </div>
     </div>
 
-    <div class="sidebar-summary">
-      <div class="summary-row"><span>Receitas</span><span id="sb-income">R$ 0,00</span></div>
-      <div class="summary-row"><span>Despesas</span><span id="sb-expense">R$ 0,00</span></div>
-      <div class="summary-row sb-caixa-mes-row"><span>Caixa Mês</span><span id="sb-caixa-mes">R$ 0,00</span></div>
-      <div class="progress-bar"><div class="progress-fill" id="sb-bar" style="width:0%"></div></div>
-      <div class="summary-balance positive" id="sb-balance">Saldo: R$ 0,00</div>
-    </div>
   </aside>
 
   <!-- MAIN -->
@@ -2125,27 +2200,33 @@
       <!-- DASHBOARD VIEW -->
       <div class="view active" id="view-dashboard">
 
-        <div class="metrics-grid">
-          <div class="metric-card">
-            <div class="metric-label" style="color:#1D9E75;"><i class="ti ti-trending-up"></i> Receitas do mês</div>
-            <div class="metric-value green" id="m-income">R$ 0,00</div>
-            <div class="metric-sub" id="m-income-sub">Fixo: — · Variável: —</div>
+        <!-- Barra de resumo compacta (substitui cards de métricas) -->
+        <div class="dash-summary-bar">
+          <div class="dash-summary-item">
+            <div class="dash-summary-label" style="color:#1D9E75;"><i class="ti ti-trending-up"></i> Receitas</div>
+            <div class="dash-summary-value green" id="sb-income">R$ 0,00</div>
           </div>
-          <div class="metric-card">
-            <div class="metric-label" style="color:#D85A30;"><i class="ti ti-trending-down"></i> Despesas do mês</div>
-            <div class="metric-value red" id="m-expense">R$ 0,00</div>
-            <div class="metric-sub" id="m-expense-sub">Fixo: — · Variável: —</div>
+          <div class="dash-summary-item">
+            <div class="dash-summary-label" style="color:#D85A30;"><i class="ti ti-trending-down"></i> Despesas</div>
+            <div class="dash-summary-value red" id="sb-expense">R$ 0,00</div>
           </div>
-          <div class="metric-card">
-            <div class="metric-label"><i class="ti ti-scale" style="color:#378ADD;"></i> Saldo do mês</div>
-            <div class="metric-value" id="m-balance">R$ 0,00</div>
-            <div class="metric-sub" id="m-balance-sub">—</div>
+          <div class="dash-summary-item">
+            <div class="dash-summary-label" style="color:var(--blue-text);"><i class="ti ti-calendar-dollar"></i> Caixa Mês</div>
+            <div class="dash-summary-value" id="sb-caixa-mes">R$ 0,00</div>
           </div>
-          <div class="metric-card">
-            <div class="metric-label"><i class="ti ti-chart-pie" style="color:#7F77DD;"></i> Taxa de gastos</div>
-            <div class="metric-value" id="m-rate">0%</div>
-            <div class="metric-sub">das receitas comprometidas</div>
+          <div class="dash-summary-item dash-summary-item-balance">
+            <div class="dash-summary-label"><i class="ti ti-scale"></i> Saldo</div>
+            <div class="dash-summary-progress"><div class="dash-summary-progress-fill" id="sb-bar" style="width:0%"></div></div>
+            <div class="dash-summary-balance positive" id="sb-balance">Saldo: R$ 0,00</div>
           </div>
+        </div>
+
+        <!-- IDs dos metrics preservados para o JS (invisíveis) -->
+        <div style="display:none;" aria-hidden="true">
+          <span id="m-income"></span><span id="m-income-sub"></span>
+          <span id="m-expense"></span><span id="m-expense-sub"></span>
+          <span id="m-balance"></span><span id="m-balance-sub"></span>
+          <span id="m-rate"></span>
         </div>
 
         <div class="charts-row">
@@ -2804,7 +2885,7 @@ function updateSidebar(t) {
   const pctMes = t.te > 0 ? Math.min(100, Math.round(saldoMes / t.te * 100)) : 0;
   const bar = document.getElementById('sb-bar');
   bar.style.width = Math.min(100, pctMes) + '%';
-  bar.className = 'progress-fill' + (pctMes < 60 ? ' over' : '');
+  bar.className = 'dash-summary-progress-fill' + (pctMes < 60 ? ' over' : '');
 
   // Verifica se o mês foi quitado (existe movimentação de quitação no mês atual)
   const foiQuitado = caixaMesMovs.some(
@@ -2815,14 +2896,14 @@ function updateSidebar(t) {
   const balEl = document.getElementById('sb-balance');
   if (foiQuitado) {
     balEl.innerHTML = '<i class="ti ti-circle-check"></i> Mês Quitado';
-    balEl.className = 'summary-balance positive';
+    balEl.className = 'dash-summary-balance positive';
     balEl.style.fontWeight = '700';
     balEl.style.letterSpacing = '0.01em';
   } else {
     // Saldo = Caixa Mês - Despesas
     const saldoReal = saldoMes - t.te;
     balEl.textContent = 'Saldo: ' + (saldoReal >= 0 ? '+' : '') + fmt(saldoReal);
-    balEl.className = 'summary-balance ' + (saldoReal >= 0 ? 'positive' : 'negative');
+    balEl.className = 'dash-summary-balance ' + (saldoReal >= 0 ? 'positive' : 'negative');
     balEl.style.fontWeight = '';
     balEl.style.letterSpacing = '';
   }
@@ -3045,7 +3126,7 @@ function renderCaixaMes() {
   if (balEl) {
     if (foiQuitado) {
       balEl.innerHTML = '<i class="ti ti-circle-check"></i> Mês Quitado';
-      balEl.className = 'summary-balance positive';
+      balEl.className = 'dash-summary-balance positive';
       balEl.style.fontWeight = '700';
     } else {
       // Recalcula saldo = caixa mês - despesas do mês
@@ -3054,7 +3135,7 @@ function renderCaixaMes() {
       ).reduce((s,e) => s + e.amount, 0) : 0;
       const saldoReal = saldo - te;
       balEl.textContent = 'Saldo: ' + (saldoReal >= 0 ? '+' : '') + fmt(saldoReal);
-      balEl.className = 'summary-balance ' + (saldoReal >= 0 ? 'positive' : 'negative');
+      balEl.className = 'dash-summary-balance ' + (saldoReal >= 0 ? 'positive' : 'negative');
       balEl.style.fontWeight = '';
     }
   }
